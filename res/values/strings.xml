@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bear For Kids</string>
+    <string name="new_game">New Game</string>
+    <string name="highscore">High Score</string>
+    <string name="settings">Settings</string>
+    <string name="moregame">More Game</string>
+    <string name="exit">Exit</string>
+
+</resources>

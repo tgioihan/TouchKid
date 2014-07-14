@@ -5,13 +5,10 @@ import java.util.Random;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.runnable.RunnableHandler;
-import org.andengine.engine.handler.timer.ITimerCallback;
-import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.sprite.batch.SpriteGroup;
@@ -79,6 +76,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		ratio = RatioUtils.calculatorRatioScreen(this, true);
+		Log.d("", "ratio "+ ratio);
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;

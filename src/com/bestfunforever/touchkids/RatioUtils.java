@@ -6,8 +6,8 @@ import android.util.Log;
 
 public class RatioUtils {
 
-	public static final int DEFAULT_SCREEN_WIDTH_PORTRAIT = 480;
-	public static final int DEFAULT_SCREEN_HEIGHT_PORTRAIT = 800;
+	public static final int DEFAULT_SCREEN_WIDTH_PORTRAIT = 640;
+	public static final int DEFAULT_SCREEN_HEIGHT_PORTRAIT = 960;
 
 	public static final int DEFAULT_SCREEN_WIDTH_LANSCAPE = 800;
 	public static final int DEFAULT_SCREEN_HEIGHT_LANSCAPE = 480;
