@@ -130,7 +130,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	}
 
 	protected void addGameObject() {
-		int pID = mRandom.nextInt(4);
+		int pID = mRandom.nextInt(5);
 		final SpriteWithBody sprite = mPool.obtainPoolItem(pID);
 		sprite.setPID(pID);
 		sprite.setPosition((CAMERA_WIDTH - 32) * mRandom.nextFloat(), - 2.5f*mGame.getLevel()*sprite.getHeight());
@@ -155,6 +155,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		mPool.registerPool(1, new GameObjectGenerate(mBear2TextureRegion,ratio, getVertexBufferObjectManager()));
 		mPool.registerPool(2, new GameObjectGenerate(mBear3TextureRegion,ratio, getVertexBufferObjectManager()));
 		mPool.registerPool(3, new GameObjectGenerate(mBear4TextureRegion,ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(4, new GameObjectGenerate(mBear5TextureRegion,ratio, getVertexBufferObjectManager()));
 	}
 	
 	private float countGenerateTime = 0;
