@@ -6,6 +6,7 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveXModifier;
+import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
@@ -30,7 +31,6 @@ import android.util.Log;
 import com.bestfunforever.andengine.uikit.entity.IClick;
 import com.bestfunforever.dialog.BaseDialog;
 import com.bestfunforever.dialog.Dialog;
-import com.bestfunforever.dialog.IDialog;
 import com.bestfunforever.touchkids.Entity.BubbleSprite;
 
 public class OpenActivity extends SimpleBaseGameActivity {
@@ -107,7 +107,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
-						createDialog();
+						createDialog(getString(R.string.highscore));
 					}
 				}, false);
 		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.settings), mLayer,
@@ -115,7 +115,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
-						createDialog();
+						createDialog(getString(R.string.settings));
 					}
 				}, true);
 		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.moregame), mLayer,
@@ -123,7 +123,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
-						createDialog();
+						createDialog(getString(R.string.moregame));
 					}
 				}, false);
 		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.exit), mLayer, new IClick() {
@@ -139,17 +139,19 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		return mScene;
 	}
 
-	protected void createDialog() {
+	protected void createDialog(String string) {
 		// TODO Auto-generated method stub
 		BaseDialog mDialog = new BaseDialog(this, mCamera, ratio);
-		mDialog.setTitle("title");
+		mDialog.setTitle(string);
 		mDialog.setLeftButton("OK", new com.bestfunforever.dialog.IDialog.IClick() {
-			
+
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {
 				dialog.dismiss();
 			}
 		});
+		mDialog.setOpenAnim(new ScaleModifier(1, 1, 1, 0, 1));
+		mDialog.setCloseAnim(new ScaleModifier(0.4f, 1, 1, 1, 0));
 		mDialog.show(mScene);
 	}
 

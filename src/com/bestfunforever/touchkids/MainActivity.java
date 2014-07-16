@@ -25,6 +25,7 @@ import org.andengine.util.adt.pool.MultiPool;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.bestfunforever.menu.CircleMenu;
 import com.bestfunforever.touchkids.Pool.GameObjectGenerate;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody.OnTouchBegin;
@@ -59,6 +60,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	private TextureRegion mBgTextureRegion;
 	
 	private float ratio;
+	private Camera mCamera;
 	
 	
 	// ===========================================================
@@ -80,8 +82,8 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;
-		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 
 	}
 
@@ -107,12 +109,16 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		this.mScene = new Scene();
-		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,mBgTextureRegion.getWidth()*ratio,mBgTextureRegion.getHeight()*ratio, mBgTextureRegion, getVertexBufferObjectManager())));
+		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,CAMERA_WIDTH,CAMERA_HEIGHT, mBgTextureRegion, getVertexBufferObjectManager())));
 //		this.mScene.setOnSceneTouchListener(this);
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mEngine.registerUpdateHandler(this);
 		this.spriteGroup = new SpriteGroup( this.mBitmapTextureAtlas, 4 * 20,this.getVertexBufferObjectManager());
 		mScene.attachChild(spriteGroup);
+		
+		CircleMenu circleMenu = new CircleMenu(this, mCamera, ratio);
+		circleMenu.attackScene(mScene);
+		
 		createPool();
 		
 		mGame = new Game(1);

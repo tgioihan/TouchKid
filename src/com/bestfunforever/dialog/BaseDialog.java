@@ -39,7 +39,6 @@ public class BaseDialog extends Dialog {
 	private float paddingLeftRight = 13 * ratio;
 	private float marginElement = 10 * ratio;
 	private String title = "";
-	private Sprite bgSprite;
 	private BubbleSprite mLeftButton;
 	private BubbleSprite mRightButton;
 	private Text mTitle;
@@ -71,7 +70,7 @@ public class BaseDialog extends Dialog {
 		this.mTeddyBitmapTextureAtlas.load();
 
 		this.mTileFont = FontFactory.create(context.getFontManager(), context.getTextureManager(), (int) (256 * ratio),
-				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (40 * ratio));
+				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (40 * ratio),true,android.graphics.Color.WHITE);
 		this.mTileFont.load();
 
 		this.mFont = FontFactory.create(context.getFontManager(), context.getTextureManager(), (int) (256 * ratio),
@@ -100,6 +99,7 @@ public class BaseDialog extends Dialog {
 		title = "a";
 		mTitle = new Text(0, paddingTopBottom, mTileFont, title,10, new TextOptions(AutoWrap.WORDS, widhtMax,
 				HorizontalAlign.CENTER), context.getVertexBufferObjectManager());
+		mTitle.setColor(Color.RED);
 		totalHeigt += mTitle.getHeight() + marginElement;
 		Rectangle mContentRect = new Rectangle(paddingLeftRight, totalHeigt, widhtMax - 2 * paddingLeftRight,
 				0, context.getVertexBufferObjectManager());
@@ -134,6 +134,7 @@ public class BaseDialog extends Dialog {
 				iclick.onClick(BaseDialog.this, mRightButton);
 			}
 		});
+		registerTouchArea(mLeftButton);;
 		invalidate();
 	}
 
@@ -172,6 +173,7 @@ public class BaseDialog extends Dialog {
 				iclick.onClick(BaseDialog.this, mRightButton);
 			}
 		});
+		registerTouchArea(mRightButton);;
 		invalidate();
 	}
 
