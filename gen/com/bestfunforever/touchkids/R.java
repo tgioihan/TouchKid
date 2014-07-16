@@ -26,8 +26,11 @@ public final class R {
         public static final int app_name=0x7f030000;
         public static final int exit=0x7f030005;
         public static final int highscore=0x7f030002;
+        public static final int level=0x7f030007;
+        public static final int lose=0x7f030008;
         public static final int moregame=0x7f030004;
         public static final int new_game=0x7f030001;
+        public static final int score=0x7f030006;
         public static final int settings=0x7f030003;
     }
     public static final class style {

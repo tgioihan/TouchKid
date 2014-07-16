@@ -107,7 +107,7 @@ public class CircleMenu extends BaseMenu {
 
 	@Override
 	public void onCreate() {
-		controlBgSprite = new BubbleSprite(menuControlBgTextureRegion.getWidth(), camera_height, "", null,
+		controlBgSprite = new BubbleSprite(-menuControlBgTextureRegion.getWidth(), camera_height,ratio, "", null,
 				menuControlBgTextureRegion, context.getVertexBufferObjectManager());
 		controlBgSprite.setClickListenner(new IClick() {
 
@@ -122,15 +122,15 @@ public class CircleMenu extends BaseMenu {
 			}
 		});
 		controlBgSprite.registerEntityModifier(new MoveModifier(1f, controlBgSprite.getX(), 0, controlBgSprite.getY(),
-				camera_height - menuControlBgTextureRegion.getHeight()));
+				camera_height - controlBgSprite.getHeight()));
 
 		derectionMenuSprite = new Sprite(menuControlBgTextureRegion.getWidth() / 2
 				- menuControlDerectionTextureRegion.getWidth() / 2, +menuControlBgTextureRegion.getHeight() / 2
-				- menuControlDerectionTextureRegion.getHeight() / 2, menuControlDerectionTextureRegion,
+				- menuControlDerectionTextureRegion.getHeight() / 2,menuControlDerectionTextureRegion.getWidth()*ratio,menuControlDerectionTextureRegion.getHeight()*ratio, menuControlDerectionTextureRegion,
 				context.getVertexBufferObjectManager());
 		controlBgSprite.attachChild(derectionMenuSprite);
 		this.registerTouchArea(controlBgSprite);
-		holderBgSprite = new Sprite(-menuPurpleTextureRegion.getWidth(), camera_height, menuPurpleTextureRegion,
+		holderBgSprite = new Sprite(-menuPurpleTextureRegion.getWidth()*ratio, camera_height,menuPurpleTextureRegion.getWidth()*ratio,menuPurpleTextureRegion.getHeight()*ratio, menuPurpleTextureRegion,
 				context.getVertexBufferObjectManager());
 		this.attachChild(holderBgSprite);
 		this.attachChild(controlBgSprite);
@@ -156,7 +156,7 @@ public class CircleMenu extends BaseMenu {
 		super.show();
 		if (stage == STAGE.HIDE) {
 			holderBgSprite.registerEntityModifier(new MoveModifier(0.3f, holderBgSprite.getX(), 0, holderBgSprite
-					.getY(), camera_height - menuPurpleTextureRegion.getHeight(), new IEntityModifierListener() {
+					.getY(), camera_height - holderBgSprite.getHeight(), new IEntityModifierListener() {
 
 				@Override
 				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {

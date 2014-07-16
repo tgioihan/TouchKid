@@ -14,6 +14,10 @@ public class Game {
 	private float generateTime;
 	private int level;
 	private boolean isStart;
+	private int score;
+	private int objectDeathTotal;
+	private int objectDeathCount;
+	private int scoreToPassLv;
 
 	// ===========================================================
 	// Constructors
@@ -25,6 +29,8 @@ public class Game {
 	public Game(int level){
 		velocity = 30;
 		generateTime = 1f;
+		objectDeathTotal = 10;
+		scoreToPassLv = 20;
 		setLevel(level);
 	}
 
@@ -33,8 +39,11 @@ public class Game {
 	// ===========================================================
 	private void setLevel(int level) {
 		this.level = level;
-		velocity = velocity*level;
-		generateTime = generateTime/level;
+		velocity += velocity/10*level;
+		objectDeathCount = 0;
+		scoreToPassLv += scoreToPassLv/5*level;
+		objectDeathTotal += objectDeathTotal/10*level;
+		generateTime -= 0.08f*level;
 	}
 	
 	public int getLevel(){
@@ -62,6 +71,41 @@ public class Game {
 	
 	public float getGenerateTime(){
 		return generateTime;
+	}
+
+	/**
+	 * @return the score
+	 */
+	public int getScore() {
+		return score;
+	}
+
+	/**
+	 * @param score the score to set
+	 */
+	public void setScore(int score) {
+		this.score = score;
+	}
+	
+	public boolean incressObjectDeathCount(int in){
+		objectDeathCount+=in;
+		if(objectDeathCount == objectDeathTotal){
+			return true;
+		}
+		return false;
+	}
+	
+	public int getPercentObjectDeath(){
+		return objectDeathCount*100/objectDeathTotal;
+	}
+	
+	public boolean incressScore(int in){
+		score+=in;
+		if(score == scoreToPassLv){
+			setLevel(level+1);
+			return true;
+		}
+		return false;
 	}
 
 	// ===========================================================

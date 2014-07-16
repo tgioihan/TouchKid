@@ -1,5 +1,7 @@
 package com.bestfunforever.touchkids;
 
+import java.util.ArrayList;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -46,6 +48,8 @@ public class OpenActivity extends SimpleBaseGameActivity {
 	private Font mFont;
 	private Camera mCamera;
 
+	private ArrayList<BubbleSprite> mButtons = new ArrayList<BubbleSprite>();
+
 	private static final float distance_button = 30f;
 	private static final float mAnimDuration = 1;
 
@@ -62,27 +66,50 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH,
-				CAMERA_HEIGHT), mCamera);
+		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
+				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 	}
 
 	@Override
 	protected void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
-		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBgBitmapTextureAtlas,
-				this, "bg_app.png", 0, 0); // 64x32
+		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(
+				this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
+		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBgBitmapTextureAtlas, this,
+						"bg_app.png", 0, 0); // 64x32
 		this.mBgBitmapTextureAtlas.load();
 
-		this.mBtnBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 229, 76, TextureOptions.BILINEAR);
-		this.mBtnTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBtnBitmapTextureAtlas,
-				this, "btn.png", 0, 0); // 64x32
+		this.mBtnBitmapTextureAtlas = new BitmapTextureAtlas(
+				this.getTextureManager(), 229, 76, TextureOptions.BILINEAR);
+		this.mBtnTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBtnBitmapTextureAtlas, this, "btn.png",
+						0, 0); // 64x32
 		this.mBtnBitmapTextureAtlas.load();
 
-		this.mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), (int) (256 * ratio),
-				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (32 * ratio));
+		this.mFont = FontFactory.create(this.getFontManager(),
+				this.getTextureManager(), (int) (256 * ratio),
+				(int) (256 * ratio),
+				Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
+				(int) (32 * ratio));
 		this.mFont.load();
 
+	}
+
+	@Override
+	public synchronized void onResumeGame() {
+		// TODO Auto-generated method stub
+		super.onResumeGame();
+		for (int i = 0; i < mButtons.size(); i++) {
+			BubbleSprite bubbleSprite = mButtons.get(i);
+			if (i % 2 == 0) {
+				bubbleSprite.setX(-bubbleSprite.getWidth());
+			} else {
+				bubbleSprite.setX(CAMERA_WIDTH
+						+ bubbleSprite.getWidth());
+			}
+			bubbleSprite.registerEntityModifier(new MoveXModifier(mAnimDuration, bubbleSprite.getX(), 216 * ratio));
+		}
 	}
 
 	@Override
@@ -90,49 +117,54 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		this.mScene = new Scene();
-		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
+		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,
+				CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
 				getVertexBufferObjectManager())));
 
-		Rectangle mLayer = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, getVertexBufferObjectManager());
+		Rectangle mLayer = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT,
+				getVertexBufferObjectManager());
 		mLayer.setColor(Color.TRANSPARENT);
-		float tmp = initButton(216 * ratio, 412 * ratio, getString(R.string.new_game), mLayer, new IClick() {
+		float tmp = initButton(216 * ratio, 412 * ratio,
+				getString(R.string.new_game), mLayer, new IClick() {
 
-			@Override
-			public void onCLick(IAreaShape view) {
-				startActivity(new Intent(getApplicationContext(), MainActivity.class));
-			}
-		}, true);
-		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.highscore), mLayer,
-				new IClick() {
+					@Override
+					public void onCLick(IAreaShape view) {
+						startActivity(new Intent(getApplicationContext(),
+								MainActivity.class));
+					}
+				}, true);
+		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
+				getString(R.string.highscore), mLayer, new IClick() {
 
 					@Override
 					public void onCLick(IAreaShape view) {
 						createDialog(getString(R.string.highscore));
 					}
 				}, false);
-		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.settings), mLayer,
-				new IClick() {
+		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
+				getString(R.string.settings), mLayer, new IClick() {
 
 					@Override
 					public void onCLick(IAreaShape view) {
 						createDialog(getString(R.string.settings));
 					}
 				}, true);
-		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.moregame), mLayer,
-				new IClick() {
+		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
+				getString(R.string.moregame), mLayer, new IClick() {
 
 					@Override
 					public void onCLick(IAreaShape view) {
 						createDialog(getString(R.string.moregame));
 					}
 				}, false);
-		tmp = initButton(216 * ratio, tmp + distance_button * ratio, getString(R.string.exit), mLayer, new IClick() {
+		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
+				getString(R.string.exit), mLayer, new IClick() {
 
-			@Override
-			public void onCLick(IAreaShape view) {
-				finish();
-			}
-		}, true);
+					@Override
+					public void onCLick(IAreaShape view) {
+						finish();
+					}
+				}, true);
 		mScene.setTouchAreaBindingOnActionMoveEnabled(true);
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mScene.attachChild(mLayer);
@@ -143,21 +175,25 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		// TODO Auto-generated method stub
 		BaseDialog mDialog = new BaseDialog(this, mCamera, ratio);
 		mDialog.setTitle(string);
-		mDialog.setLeftButton("OK", new com.bestfunforever.dialog.IDialog.IClick() {
+		mDialog.setLeftButton("OK",
+				new com.bestfunforever.dialog.IDialog.IClick() {
 
-			@Override
-			public void onClick(Dialog dialog, IEntity view) {
-				dialog.dismiss();
-			}
-		});
+					@Override
+					public void onClick(Dialog dialog, IEntity view) {
+						dialog.dismiss();
+					}
+				});
 		mDialog.setOpenAnim(new ScaleModifier(1, 1, 1, 0, 1));
 		mDialog.setCloseAnim(new ScaleModifier(0.4f, 1, 1, 1, 0));
 		mDialog.show(mScene);
 	}
 
-	private float initButton(float pX, float pY, String label, Rectangle mLayer, IClick iClick, boolean left) {
-		BubbleSprite mBtn = new BubbleSprite(0, pY, mBtnTextureRegion.getWidth() * ratio, mBtnTextureRegion.getHeight()
-				* ratio, label, mFont, mBtnTextureRegion, getVertexBufferObjectManager());
+	private float initButton(float pX, float pY, String label,
+			Rectangle mLayer, IClick iClick, boolean left) {
+		BubbleSprite mBtn = new BubbleSprite(0, pY,
+				mBtnTextureRegion.getWidth() * ratio,
+				mBtnTextureRegion.getHeight() * ratio, label, mFont,
+				mBtnTextureRegion, getVertexBufferObjectManager());
 		mBtn.setClickListenner(iClick);
 		float startX = 0;
 		if (left) {
@@ -169,6 +205,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 		mBtn.setX(startX);
 		mBtn.registerEntityModifier(new MoveXModifier(mAnimDuration, startX, pX));
+		mButtons.add(mBtn);
 		mLayer.attachChild(mBtn);
 		mScene.registerTouchArea(mBtn);
 		return mBtn.getY() + mBtn.getHeight();
