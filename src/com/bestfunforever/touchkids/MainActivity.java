@@ -1,16 +1,22 @@
 package com.bestfunforever.touchkids;
 
+import java.io.IOException;
 import java.util.Random;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.runnable.RunnableHandler;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.SpriteBackground;
 import org.andengine.entity.sprite.Sprite;
@@ -19,6 +25,7 @@ import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -29,24 +36,29 @@ import org.andengine.util.adt.list.SmartList;
 import org.andengine.util.adt.pool.MultiPool;
 import org.andengine.util.color.Color;
 
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.net.NetworkInfo.DetailedState;
+import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.bestfunforever.dialog.BaseDialog;
 import com.bestfunforever.dialog.Dialog;
 import com.bestfunforever.dialog.IDialog;
 import com.bestfunforever.menu.BaseMenu.IMenuListenner;
 import com.bestfunforever.menu.BaseMenu.IOnMenuItemClickListener;
 import com.bestfunforever.menu.CircleMenu;
 import com.bestfunforever.menu.IMenuItem;
+import com.bestfunforever.touchkids.Entity.CheckBox.ICheckedChange;
 import com.bestfunforever.touchkids.Entity.ProgessBarColor;
 import com.bestfunforever.touchkids.Pool.GameObjectGenerate;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody.OnTouchBegin;
 import com.bestfunforever.touchkids.game.Game;
 
-public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandler, IOnMenuItemClickListener, IMenuListenner {
+public class MainActivity extends SimpleBaseGameActivity implements
+		IUpdateHandler, IOnMenuItemClickListener, IMenuListenner {
 
 	// ===========================================================
 	// Constants
@@ -78,7 +90,9 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	private float ratio;
 	private Camera mCamera;
 	private Font mFont;
-	
+	private Sound clickSound;
+	private Music music;
+	private Font bigFont;
 
 	// ===========================================================
 	// Constructors
@@ -93,6 +107,12 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	// ===========================================================
 
 	@Override
+	protected void onCreate(Bundle pSavedInstanceState) {
+		super.onCreate(pSavedInstanceState);
+		preferences = getSharedPreferences("BearforKid", 0);
+	}
+	
+	@Override
 	public EngineOptions onCreateEngineOptions() {
 		ratio = RatioUtils.calculatorRatioScreen(this, true);
 		Log.d("", "ratio " + ratio);
@@ -100,8 +120,12 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH,
-				CAMERA_HEIGHT), mCamera);
+		EngineOptions engineOptions = new EngineOptions(true,
+				ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(
+						CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		engineOptions.getAudioOptions().getMusicOptions().setNeedsMusic(true);
+		engineOptions.getAudioOptions().getSoundOptions().setNeedsSound(true);
+		return engineOptions;
 
 	}
 
@@ -109,32 +133,79 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	protected void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
-		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
-		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBgBitmapTextureAtlas,
-				this, "bg1.png", 0, 0); // 64x32
+		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(
+				this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
+		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mBgBitmapTextureAtlas, this, "bg1.png",
+						0, 0); // 64x32
 		this.mBgBitmapTextureAtlas.load();
 
-		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 512, 512, TextureOptions.BILINEAR);
-		this.mBear1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear1.png", 0, 0, 1, 1); // 64x32
-		this.mBear2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear2.png", 0, 44, 1, 1); // 64x32
-		this.mBear3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear3.png", 0, 88, 1, 1); // 64x32
-		this.mBear4TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear4.png", 0, 132, 1, 1); // 64x32
-		this.mBear5TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear5.png", 0, 176, 1, 1); // 64x32
+		loadResource();
+
+		loadSound();
+		loadMusic();
+	}
+	
+	private void loadResource() {
+		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
+				this.getTextureManager(), 512, 512, TextureOptions.BILINEAR);
+		this.mBear1TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
+						"bear1.png", 0, 0, 1, 1); // 64x32
+		this.mBear2TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
+						"bear2.png", 0, 44, 1, 1); // 64x32
+		this.mBear3TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
+						"bear3.png", 0, 88, 1, 1); // 64x32
+		this.mBear4TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
+						"bear4.png", 0, 132, 1, 1); // 64x32
+		this.mBear5TextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
+						"bear5.png", 0, 176, 1, 1); // 64x32
 		this.mBitmapTextureAtlas.load();
 
-		this.mShareFbBitmapTextureAtlas = new BitmapTextureAtlas(getTextureManager(), 240, 95, TextureOptions.BILINEAR);
-		this.mShareFbTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-				this.mShareFbBitmapTextureAtlas, this, "sharefb_btn.png", 0, 0); // 64x32
+		this.mShareFbBitmapTextureAtlas = new BitmapTextureAtlas(
+				getTextureManager(), 240, 95, TextureOptions.BILINEAR);
+		this.mShareFbTextureRegion = BitmapTextureAtlasTextureRegionFactory
+				.createFromAsset(this.mShareFbBitmapTextureAtlas, this,
+						"sharefb_btn.png", 0, 0); // 64x32
 		this.mShareFbBitmapTextureAtlas.load();
+		
+		final ITexture bigfontTexture = new BitmapTextureAtlas(
+				this.getTextureManager(), (int) (512*ratio ),
+				(int) (512*ratio ), TextureOptions.BILINEAR);
+		this.bigFont = FontFactory.createFromAsset(this.getFontManager(),
+				bigfontTexture, this.getAssets(), "font/UVNBanhMi.TTF",
+				140 , true, android.graphics.Color.RED);
+		this.bigFont.load();
 
-		this.mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), (int) (256 * ratio),
-				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (32 * ratio));
+		this.mFont = FontFactory.create(this.getFontManager(),
+				this.getTextureManager(), (int) (256 * ratio),
+				(int) (256 * ratio),
+				Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
+				(int) (32 * ratio));
 		this.mFont.load();
+	}
+
+	private void loadSound() {
+		SoundFactory.setAssetBasePath("sound/");
+		try {
+			clickSound = SoundFactory.createSoundFromAsset(this.getSoundManager(),
+					this.getApplicationContext(), "button_click.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void playCLick() {
+		if(clickSound!=null&&SoundManger.isSoundEnable(preferences)){
+			clickSound.play();
+		}else if(clickSound == null&&SoundManger.isSoundEnable(preferences)){
+			loadSound();
+			clickSound.play();
+		}
 	}
 
 	private float padding = 20;
@@ -144,16 +215,55 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	private CircleMenu circleMenu;
 
 	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if (music != null && music.isPlaying()) {
+			music.pause();
+		}
+	}
+
+	@Override
+	public synchronized void onResumeGame() {
+		// TODO Auto-generated method stub
+		super.onResumeGame();
+		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+			playMusic();
+		}
+	}
+	
+	@Override
 	protected Scene onCreateScene() {
-		this.mEngine.registerUpdateHandler(new FPSLogger());
-		mGame = new Game(1);
 		this.mScene = new Scene();
-		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
+		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,
+				CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
 				getVertexBufferObjectManager())));
+		this.mEngine.registerUpdateHandler(new FPSLogger());
+		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+			playMusic();
+		}
+		this.mEngine.registerUpdateHandler(mTimerHandler);
+		return mScene;
+	}
+	
+	TimerHandler mTimerHandler = new TimerHandler(0.6f, false, new ITimerCallback() {
+		
+		@Override
+		public void onTimePassed(TimerHandler pTimerHandler) {
+			// TODO Auto-generated method stub
+			MainActivity.this.mEngine.unregisterUpdateHandler(mTimerHandler);
+			loadResource();
+			init();
+		}
+	});
+	
+	public void init(){
+		mGame = new Game(1);
 		// this.mScene.setOnSceneTouchListener(this);
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mEngine.registerUpdateHandler(this);
-		this.spriteGroup = new SpriteGroup(this.mBitmapTextureAtlas, 1000, this.getVertexBufferObjectManager());
+		this.spriteGroup = new SpriteGroup(this.mBitmapTextureAtlas, 1000,
+				this.getVertexBufferObjectManager());
 		mScene.attachChild(spriteGroup);
 
 		circleMenu = new CircleMenu(this, mCamera, ratio);
@@ -162,11 +272,16 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		circleMenu.attackScene(mScene);
 
 		padding = padding * ratio;
-		scoreText = new Text(padding, padding, mFont, getString(R.string.score) + 1000, getVertexBufferObjectManager());
-		levelText = new Text(0, padding, mFont, getString(R.string.level) + 10, getVertexBufferObjectManager());
-		progress = new ProgessBarColor(scoreText.getX() + scoreText.getWidth() + 10, padding, CAMERA_WIDTH - 2
-				* padding - scoreText.getWidth() - levelText.getWidth() - 2 * 10, 30 * ratio, 100, Color.RED,
-				2 * ratio, Color.GREEN, Color.WHITE, getVertexBufferObjectManager());
+		scoreText = new Text(padding, padding, mFont,
+				getString(R.string.score) + 1000,
+				getVertexBufferObjectManager());
+		levelText = new Text(0, padding, mFont, getString(R.string.level) + 10,
+				getVertexBufferObjectManager());
+		progress = new ProgessBarColor(scoreText.getX() + scoreText.getWidth()
+				+ 10, padding, CAMERA_WIDTH - 2 * padding
+				- scoreText.getWidth() - levelText.getWidth() - 2 * 10,
+				30 * ratio, 100, Color.RED, 2 * ratio, Color.GREEN,
+				Color.WHITE, getVertexBufferObjectManager());
 		levelText.setX(progress.getX() + progress.getWidth() + 10);
 		scoreText.setText(getString(R.string.score) + mGame.getScore() + "");
 		levelText.setText(getString(R.string.level) + mGame.getLevel());
@@ -174,8 +289,55 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		mScene.attachChild(progress);
 		mScene.attachChild(levelText);
 		createPool();
-		start();
-		return mScene;
+		onStartGame();
+	}
+	
+	Text bigText ;
+	
+	TimerHandler startGameTimeHandler = new TimerHandler(0.4f, new ITimerCallback() {
+		
+		@Override
+		public void onTimePassed(TimerHandler pTimerHandler) {
+			// TODO Auto-generated method stub
+			runOnUpdateThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					mScene.detachChild(bigText);
+					bigText.unregisterUpdateHandler(startGameTimeHandler);
+					start();
+				}
+			});
+		}
+	});
+	
+	TimerHandler levelUpTimeHandler = new TimerHandler(0.4f, new ITimerCallback() {
+		
+		@Override
+		public void onTimePassed(TimerHandler pTimerHandler) {
+			// TODO Auto-generated method stub
+			runOnUpdateThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					mScene.detachChild(bigText);
+					bigText.unregisterUpdateHandler(startGameTimeHandler);
+					mEngine.registerUpdateHandler(MainActivity.this);
+				}
+			});
+		}
+	});
+
+	private void onStartGame() {
+		if(bigText == null){
+			bigText = new Text(0, 0, bigFont, "",13, getVertexBufferObjectManager());
+		}
+		bigText.setText(getString(R.string.startgame));
+		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT-bigText.getHeight()/2);
+		mScene.attachChild(bigText);
+		bigText.registerUpdateHandler(startGameTimeHandler);
 	}
 
 	Random mRandom = new Random();
@@ -188,34 +350,56 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		int pID = mRandom.nextInt(5);
 		final SpriteWithBody sprite = mPool.obtainPoolItem(pID);
 		sprite.setPID(pID);
-		sprite.setPosition((CAMERA_WIDTH - 32) * mRandom.nextFloat(), -2.5f * mGame.getLevel() * sprite.getHeight());
+		sprite.setPosition((CAMERA_WIDTH - 32) * mRandom.nextFloat(), -2.5f
+				* mGame.getLevel() * sprite.getHeight());
 		sprite.setVelocity(mGame.getVelocity());
 		sprite.setVisible(true);
 		sprite.setOnTouchBegin(new OnTouchBegin() {
 
 			@Override
 			public void onTouchBegin() {
+				playCLick();
 				removeGameObject(sprite);
 				boolean passLv = mGame.incressScore(1);
-				scoreText.setText(getString(R.string.score) + mGame.getScore() + "");
+				scoreText.setText(getString(R.string.score) + mGame.getScore()
+						+ "");
 				if (passLv) {
-					levelText.setText(getString(R.string.level) + mGame.getLevel());
+					levelText.setText(getString(R.string.level)
+							+ mGame.getLevel());
+					onLevelUp(mGame.getLevel());
 				}
 			}
 		});
-		Log.d("", "onTimePassed pId " + pID + " " + sprite.getX() + " " + sprite.getY());
+		Log.d("", "onTimePassed pId " + pID + " " + sprite.getX() + " "
+				+ sprite.getY());
 		mScene.registerTouchArea(sprite);
 		spriteGroup.attachChild(sprite);
 		mGameObject.add(sprite);
 	}
 
+	protected void onLevelUp(int level) {
+		if(bigText == null){
+			bigText = new Text(0, 0, bigFont, "",13, getVertexBufferObjectManager());
+		}
+		bigText.setText(getString(R.string.levelup));
+		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT-bigText.getHeight()/2);
+		mScene.attachChild(bigText);
+		mEngine.unregisterUpdateHandler(this);
+		bigText.registerUpdateHandler(levelUpTimeHandler);
+	}
+
 	private void createPool() {
 		mPool = new MultiPool<SpriteWithBody>();
-		mPool.registerPool(0, new GameObjectGenerate(mBear1TextureRegion, ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(1, new GameObjectGenerate(mBear2TextureRegion, ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(2, new GameObjectGenerate(mBear3TextureRegion, ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(3, new GameObjectGenerate(mBear4TextureRegion, ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(4, new GameObjectGenerate(mBear5TextureRegion, ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(0, new GameObjectGenerate(mBear1TextureRegion,
+				ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(1, new GameObjectGenerate(mBear2TextureRegion,
+				ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(2, new GameObjectGenerate(mBear3TextureRegion,
+				ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(3, new GameObjectGenerate(mBear4TextureRegion,
+				ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(4, new GameObjectGenerate(mBear5TextureRegion,
+				ratio, getVertexBufferObjectManager()));
 	}
 
 	private float countGenerateTime = 0;
@@ -244,6 +428,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	}
 
 	RunnableHandler mHandler = new RunnableHandler();
+	protected SharedPreferences preferences;
 
 	private void removeGameObject(final SpriteWithBody spriteWithBody) {
 		runOnUpdateThread(new Runnable() {
@@ -262,33 +447,37 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 
 	protected void createEndGameDialog() {
 		mEngine.unregisterUpdateHandler(MainActivity.this);
-		ScoreDialog dialog = new ScoreDialog(this, mCamera, ratio, mGame.getScore(), mGame.getLevel());
-		dialog.setLeftButton("OK", new com.bestfunforever.dialog.IDialog.IClick() {
+		ScoreDialog dialog = new ScoreDialog(this, mCamera, ratio,
+				mGame.getScore(), mGame.getLevel());
+		dialog.setLeftButton("OK",
+				new com.bestfunforever.dialog.IDialog.IClick() {
 
-			@Override
-			public void onClick(Dialog dialog, IEntity view) {
-				dialog.dismiss();
-				dialog.setDialogListenner(new IDialog() {
-					
 					@Override
-					public void onOpen() {
-						
-					}
-					
-					@Override
-					public void onClose() {
-						finish();
+					public void onClick(Dialog dialog, IEntity view) {
+						playCLick();
+						dialog.dismiss();
+						dialog.setDialogListenner(new IDialog() {
+
+							@Override
+							public void onOpen() {
+
+							}
+
+							@Override
+							public void onClose() {
+								finish();
+							}
+						});
 					}
 				});
-			}
-		});
-		dialog.setRightButton(null, mShareFbTextureRegion, new com.bestfunforever.dialog.IDialog.IClick() {
+		dialog.setRightButton(null, mShareFbTextureRegion,
+				new com.bestfunforever.dialog.IDialog.IClick() {
 
-			@Override
-			public void onClick(Dialog dialog, IEntity view) {
-				
-			}
-		});
+					@Override
+					public void onClick(Dialog dialog, IEntity view) {
+						playCLick();
+					}
+				});
 		dialog.show(circleMenu);
 	}
 
@@ -296,24 +485,68 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 	public void reset() {
 
 	}
-	
+
 	protected void createSettingDialog() {
 		// TODO Auto-generated method stub
 		mEngine.unregisterUpdateHandler(MainActivity.this);
-		BaseDialog mDialog = new SettingDialog(this, mCamera, ratio);
+		SettingDialog mDialog = new SettingDialog(this, mCamera, ratio, clickSound);
 		mDialog.setDialogListenner(new IDialog() {
-			
+
 			@Override
 			public void onOpen() {
 				mEngine.unregisterUpdateHandler(MainActivity.this);
 			}
-			
+
 			@Override
 			public void onClose() {
 				mEngine.registerUpdateHandler(MainActivity.this);
 			}
 		});
+		mDialog.setMusicCheckedChangeListenner(new ICheckedChange() {
+
+			@Override
+			public void onCheckedChange(boolean checked) {
+				SoundManger.setMusicEnable(preferences, checked);
+				if(checked){
+					if(music!=null && !music.isPlaying()){
+						playMusic();
+					}
+				}else{
+					if(music!=null && music.isPlaying()){
+						music.pause();
+					}
+				}
+			}
+		});
+		mDialog.setSoundCheckedChangeListenner(new ICheckedChange() {
+
+			@Override
+			public void onCheckedChange(boolean checked) {
+				// TODO Auto-generated method stub
+				SoundManger.setSoundEnable(preferences, checked);
+			}
+		});
 		mDialog.show(circleMenu);
+	}
+	
+	private void playMusic() {
+		// TODO Auto-generated method stub
+		if(music == null){
+			loadMusic();
+			music.play();
+		}else{
+			music.play();
+		}
+	}
+	
+	private void loadMusic() {
+		MusicFactory.setAssetBasePath("sound/");
+		try {
+			music = MusicFactory.createMusicFromAsset(getMusicManager(), getApplicationContext(), "dora_and_dreamland_forever.mp3");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -321,13 +554,15 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 		int id = pMenuItem.getID();
 		switch (id) {
 		case CircleMenu.MENU_SETTING:
+			playCLick();
 			createSettingDialog();
 			break;
 		case CircleMenu.MENU_EXIT:
+			playCLick();
 			finish();
 			break;
 		case CircleMenu.MENU_1:
-
+			playCLick();
 			break;
 
 		default:
@@ -338,6 +573,7 @@ public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandl
 
 	@Override
 	public void onShow() {
+		playCLick();
 		mEngine.unregisterUpdateHandler(MainActivity.this);
 	}
 

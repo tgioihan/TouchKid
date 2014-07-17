@@ -38,7 +38,6 @@ public class CircleMenu extends BaseMenu {
 	private TiledTextureRegion menuPurpleTextureRegion;
 	private TiledTextureRegion menuControlBgTextureRegion;
 	private TiledTextureRegion menuControlDerectionTextureRegion;
-	private TiledTextureRegion rulerMenuTextureRegion;
 	private BubbleSprite controlBgSprite;
 	private Sprite derectionMenuSprite;
 	private Sprite holderBgSprite;
@@ -47,7 +46,7 @@ public class CircleMenu extends BaseMenu {
 		super();
 		this.context = context;
 		this.camera_height = mCamera.getHeight();
-		this.camera_width = mCamera.getHeight();
+		this.camera_width = mCamera.getWidth();
 		this.stage = STAGE.HIDE;
 		this.ratio = ratio;
 		this.setOnSceneTouchListener(this);
@@ -101,13 +100,6 @@ public class CircleMenu extends BaseMenu {
 				menuControlDerectionTextureAtlas, context, "direction_menu.png", 0, 0, 1, 1);
 		menuControlDerectionTextureAtlas.load();
 		atlas.add(menuControlDerectionTextureAtlas);
-
-		BitmapTextureAtlas rulermenuControlDerectionTextureAtlas = new BitmapTextureAtlas(context.getTextureManager(),
-				(int) (2), (int) (256), TextureOptions.BILINEAR);
-		rulerMenuTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				rulermenuControlDerectionTextureAtlas, context, "purple_circle_ruler.png", 0, 0, 1, 1);
-		rulermenuControlDerectionTextureAtlas.load();
-		atlas.add(rulermenuControlDerectionTextureAtlas);
 	}
 
 	@Override
@@ -211,7 +203,10 @@ public class CircleMenu extends BaseMenu {
 
 	@Override
 	public void onDestroy() {
-
+		for (BitmapTextureAtlas atla : atlas) {
+			atla.unload();
+		}
+		atlas.clear();
 	}
 
 	private float padding = 60;

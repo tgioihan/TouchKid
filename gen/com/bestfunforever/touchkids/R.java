@@ -28,6 +28,7 @@ public final class R {
         public static final int exit=0x7f030005;
         public static final int highscore=0x7f030002;
         public static final int level=0x7f030007;
+        public static final int levelup=0x7f030010;
         public static final int lose=0x7f030008;
         public static final int moregame=0x7f030004;
         public static final int music=0x7f03000c;
@@ -36,6 +37,7 @@ public final class R {
         public static final int score=0x7f030006;
         public static final int settings=0x7f030003;
         public static final int sound=0x7f03000b;
+        public static final int startgame=0x7f03000f;
         public static final int state_off=0x7f03000e;
         public static final int state_on=0x7f03000d;
     }

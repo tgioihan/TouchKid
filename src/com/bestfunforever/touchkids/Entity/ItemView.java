@@ -31,15 +31,16 @@ public class ItemView extends Rectangle {
 		levelText = new Text(200, 0, mFont, "", 4, getVertexBufferObjectManager());
 		levelText.setColor(Color.RED);
 
-		mNameText.setY(pWidth / 2 - mNameText.getHeight() / 2);
-		scoreText.setY(pWidth / 2 - scoreText.getHeight() / 2);
-		levelText.setY(pWidth / 2 - levelText.getHeight() / 2);
+		mNameText.setY(pHeight / 2 - mNameText.getHeight() / 2);
+		scoreText.setY(pHeight / 2 - scoreText.getHeight() / 2);
+		levelText.setY(pHeight / 2 - levelText.getHeight() / 2);
 
 		attachChild(levelText);
 		attachChild(scoreText);
 		attachChild(mNameText);
 		
 		Line line = new Line(0, pHeight-2, pWidth,pHeight , getVertexBufferObjectManager());
+		line.setColor(Color.GREEN);
 		attachChild(line);
 
 	}

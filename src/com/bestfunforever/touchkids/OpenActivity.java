@@ -1,7 +1,12 @@
 package com.bestfunforever.touchkids;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -27,6 +32,7 @@ import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -36,6 +42,7 @@ import com.bestfunforever.andengine.uikit.entity.IClick;
 import com.bestfunforever.dialog.BaseDialog;
 import com.bestfunforever.dialog.Dialog;
 import com.bestfunforever.touchkids.Entity.BubbleSprite;
+import com.bestfunforever.touchkids.Entity.CheckBox.ICheckedChange;
 
 public class OpenActivity extends SimpleBaseGameActivity {
 
@@ -51,6 +58,9 @@ public class OpenActivity extends SimpleBaseGameActivity {
 	private Camera mCamera;
 
 	private ArrayList<BubbleSprite> mButtons = new ArrayList<BubbleSprite>();
+	private Sound clickSound;
+	private Music music;
+	private SharedPreferences preferences;
 
 	private static final float distance_button = 30f;
 	private static final float mAnimDuration = 1;
@@ -58,6 +68,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 	@Override
 	protected void onCreate(Bundle pSavedInstanceState) {
 		super.onCreate(pSavedInstanceState);
+		preferences = getSharedPreferences("BearforKid", 0);
 	}
 
 	@Override
@@ -68,8 +79,12 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
-				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		EngineOptions engineOptions = new EngineOptions(true,
+				ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(
+						CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		engineOptions.getAudioOptions().getMusicOptions().setNeedsMusic(true);
+		engineOptions.getAudioOptions().getSoundOptions().setNeedsSound(true);
+		return engineOptions;
 	}
 
 	@Override
@@ -95,40 +110,87 @@ public class OpenActivity extends SimpleBaseGameActivity {
 				Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
 				(int) (32 * ratio));
 		this.mFont.load();
-
+		loadSound();
+		loadMusic();
+	}
+	
+	private void loadSound() {
+		SoundFactory.setAssetBasePath("sound/");
+		try {
+			clickSound = SoundFactory.createSoundFromAsset(this.getSoundManager(),
+					this.getApplicationContext(), "button_click.mp3");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void playCLick() {
+		if(clickSound!=null&&SoundManger.isSoundEnable(preferences)){
+			clickSound.play();
+		}else if(clickSound == null&&SoundManger.isSoundEnable(preferences)){
+			loadSound();
+			clickSound.play();
+		}
 	}
 
+	private void loadMusic() {
+		MusicFactory.setAssetBasePath("sound/");
+		try {
+			music = MusicFactory.createMusicFromAsset(getMusicManager(), getApplicationContext(), "dora_and_dreamland_forever.mp3");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		if(music!=null && music.isPlaying()){
+			music.pause();
+		}
+	}
+	
 	@Override
 	public synchronized void onResumeGame() {
 		// TODO Auto-generated method stub
 		super.onResumeGame();
+		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+			playMusic();
+		}
 		for (int i = 0; i < mButtons.size(); i++) {
 			BubbleSprite bubbleSprite = mButtons.get(i);
 			if (i % 2 == 0) {
 				bubbleSprite.setX(-bubbleSprite.getWidth());
 			} else {
-				bubbleSprite.setX(CAMERA_WIDTH
-						+ bubbleSprite.getWidth());
+				bubbleSprite.setX(CAMERA_WIDTH + bubbleSprite.getWidth());
 			}
-			bubbleSprite.registerEntityModifier(new MoveXModifier(mAnimDuration, bubbleSprite.getX(), 216 * ratio,new IEntityModifierListener() {
-				
-				@Override
-				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-					((BubbleSprite)pItem).setEnabled(false);
-				}
-				
-				@Override
-				public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-					((BubbleSprite)pItem).setEnabled(true);
-				}
-			}));
+			bubbleSprite.registerEntityModifier(new MoveXModifier(
+					mAnimDuration, bubbleSprite.getX(), 216 * ratio,
+					new IEntityModifierListener() {
+
+						@Override
+						public void onModifierStarted(
+								IModifier<IEntity> pModifier, IEntity pItem) {
+							((BubbleSprite) pItem).setEnabled(false);
+						}
+
+						@Override
+						public void onModifierFinished(
+								IModifier<IEntity> pModifier, IEntity pItem) {
+							((BubbleSprite) pItem).setEnabled(true);
+						}
+					}));
 		}
 	}
 
 	@Override
 	protected Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-
+		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+			playMusic();
+		}
 		this.mScene = new Scene();
 		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,
 				CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
@@ -142,6 +204,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
+						playCLick();
 						startActivity(new Intent(getApplicationContext(),
 								MainActivity.class));
 					}
@@ -151,6 +214,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
+						playCLick();
 						createHighScoreDialog();
 					}
 				}, false);
@@ -159,6 +223,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
+						playCLick();
 						createSettingDialog();
 					}
 				}, true);
@@ -167,6 +232,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
+						playCLick();
 						createDialog(getString(R.string.moregame));
 					}
 				}, false);
@@ -175,6 +241,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
+						playCLick();
 						finish();
 					}
 				}, true);
@@ -183,17 +250,51 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		mScene.attachChild(mLayer);
 		return mScene;
 	}
-	
+
 	protected void createHighScoreDialog() {
 		// TODO Auto-generated method stub
-		BaseDialog mDialog = new HighScoreDialog(this, mCamera, ratio);
+		BaseDialog mDialog = new HighScoreDialog(this, mCamera, ratio,clickSound);
+		mDialog.show(mScene);
+	}
+
+	protected void createSettingDialog() {
+		// TODO Auto-generated method stub
+		SettingDialog mDialog = new SettingDialog(this, mCamera, ratio,clickSound);
+		mDialog.setMusicCheckedChangeListenner(new ICheckedChange() {
+			
+			@Override
+			public void onCheckedChange(boolean checked) {
+				SoundManger.setMusicEnable(preferences, checked);
+				if(checked){
+					if(music!=null && !music.isPlaying()){
+						playMusic();
+					}
+				}else{
+					if(music!=null && music.isPlaying()){
+						music.pause();
+					}
+				}
+			}
+		});
+		mDialog.setSoundCheckedChangeListenner(new ICheckedChange() {
+			
+			@Override
+			public void onCheckedChange(boolean checked) {
+				// TODO Auto-generated method stub
+				SoundManger.setSoundEnable(preferences, checked);
+			}
+		});
 		mDialog.show(mScene);
 	}
 	
-	protected void createSettingDialog() {
+	private void playMusic() {
 		// TODO Auto-generated method stub
-		BaseDialog mDialog = new SettingDialog(this, mCamera, ratio);
-		mDialog.show(mScene);
+		if(music == null){
+			loadMusic();
+			music.play();
+		}else{
+			music.play();
+		}
 	}
 
 	protected void createDialog(String string) {
@@ -205,6 +306,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onClick(Dialog dialog, IEntity view) {
+						playCLick();
 						dialog.dismiss();
 					}
 				});
@@ -229,18 +331,21 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		}
 
 		mBtn.setX(startX);
-		mBtn.registerEntityModifier(new MoveXModifier(mAnimDuration, startX, pX,new IEntityModifierListener() {
-			
-			@Override
-			public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-				((BubbleSprite)pItem).setEnabled(false);
-			}
-			
-			@Override
-			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-				((BubbleSprite)pItem).setEnabled(true);
-			}
-		}));
+		mBtn.registerEntityModifier(new MoveXModifier(mAnimDuration, startX,
+				pX, new IEntityModifierListener() {
+
+					@Override
+					public void onModifierStarted(IModifier<IEntity> pModifier,
+							IEntity pItem) {
+						((BubbleSprite) pItem).setEnabled(false);
+					}
+
+					@Override
+					public void onModifierFinished(
+							IModifier<IEntity> pModifier, IEntity pItem) {
+						((BubbleSprite) pItem).setEnabled(true);
+					}
+				}));
 		mButtons.add(mBtn);
 		mLayer.attachChild(mBtn);
 		mScene.registerTouchArea(mBtn);

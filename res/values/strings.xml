@@ -16,5 +16,7 @@
     <string name="music">MUSIC</string>
     <string name="state_on">ON</string>
     <string name="state_off">OFF</string>
+    <string name="startgame">Start Game</string>
+    <string name="levelup">Level Up !</string>
 
 </resources>
