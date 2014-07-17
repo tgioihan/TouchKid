@@ -178,7 +178,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 				(int) (512*ratio ), TextureOptions.BILINEAR);
 		this.bigFont = FontFactory.createFromAsset(this.getFontManager(),
 				bigfontTexture, this.getAssets(), "font/UVNBanhMi.TTF",
-				140 , true, android.graphics.Color.RED);
+				100 , true, android.graphics.Color.RED);
 		this.bigFont.load();
 
 		this.mFont = FontFactory.create(this.getFontManager(),
@@ -294,7 +294,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	
 	Text bigText ;
 	
-	TimerHandler startGameTimeHandler = new TimerHandler(0.4f, new ITimerCallback() {
+	TimerHandler startGameTimeHandler = new TimerHandler(2f, new ITimerCallback() {
 		
 		@Override
 		public void onTimePassed(TimerHandler pTimerHandler) {
@@ -312,7 +312,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		}
 	});
 	
-	TimerHandler levelUpTimeHandler = new TimerHandler(0.4f, new ITimerCallback() {
+	TimerHandler levelUpTimeHandler = new TimerHandler(1.5f, new ITimerCallback() {
 		
 		@Override
 		public void onTimePassed(TimerHandler pTimerHandler) {
@@ -335,7 +335,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			bigText = new Text(0, 0, bigFont, "",13, getVertexBufferObjectManager());
 		}
 		bigText.setText(getString(R.string.startgame));
-		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT-bigText.getHeight()/2);
+		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT/2-bigText.getHeight()/2);
 		mScene.attachChild(bigText);
 		bigText.registerUpdateHandler(startGameTimeHandler);
 	}
@@ -382,7 +382,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			bigText = new Text(0, 0, bigFont, "",13, getVertexBufferObjectManager());
 		}
 		bigText.setText(getString(R.string.levelup));
-		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT-bigText.getHeight()/2);
+		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT/2-bigText.getHeight()/2);
 		mScene.attachChild(bigText);
 		mEngine.unregisterUpdateHandler(this);
 		bigText.registerUpdateHandler(levelUpTimeHandler);
