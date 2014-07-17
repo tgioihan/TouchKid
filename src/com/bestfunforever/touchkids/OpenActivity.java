@@ -7,6 +7,7 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveXModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
@@ -23,6 +24,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -108,7 +110,18 @@ public class OpenActivity extends SimpleBaseGameActivity {
 				bubbleSprite.setX(CAMERA_WIDTH
 						+ bubbleSprite.getWidth());
 			}
-			bubbleSprite.registerEntityModifier(new MoveXModifier(mAnimDuration, bubbleSprite.getX(), 216 * ratio));
+			bubbleSprite.registerEntityModifier(new MoveXModifier(mAnimDuration, bubbleSprite.getX(), 216 * ratio,new IEntityModifierListener() {
+				
+				@Override
+				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+					((BubbleSprite)pItem).setEnabled(false);
+				}
+				
+				@Override
+				public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+					((BubbleSprite)pItem).setEnabled(true);
+				}
+			}));
 		}
 	}
 
@@ -138,7 +151,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
-						createDialog(getString(R.string.highscore));
+						createHighScoreDialog();
 					}
 				}, false);
 		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
@@ -146,7 +159,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 
 					@Override
 					public void onCLick(IAreaShape view) {
-						createDialog(getString(R.string.settings));
+						createSettingDialog();
 					}
 				}, true);
 		tmp = initButton(216 * ratio, tmp + distance_button * ratio,
@@ -169,6 +182,18 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mScene.attachChild(mLayer);
 		return mScene;
+	}
+	
+	protected void createHighScoreDialog() {
+		// TODO Auto-generated method stub
+		BaseDialog mDialog = new HighScoreDialog(this, mCamera, ratio);
+		mDialog.show(mScene);
+	}
+	
+	protected void createSettingDialog() {
+		// TODO Auto-generated method stub
+		BaseDialog mDialog = new SettingDialog(this, mCamera, ratio);
+		mDialog.show(mScene);
 	}
 
 	protected void createDialog(String string) {
@@ -204,7 +229,18 @@ public class OpenActivity extends SimpleBaseGameActivity {
 		}
 
 		mBtn.setX(startX);
-		mBtn.registerEntityModifier(new MoveXModifier(mAnimDuration, startX, pX));
+		mBtn.registerEntityModifier(new MoveXModifier(mAnimDuration, startX, pX,new IEntityModifierListener() {
+			
+			@Override
+			public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+				((BubbleSprite)pItem).setEnabled(false);
+			}
+			
+			@Override
+			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+				((BubbleSprite)pItem).setEnabled(true);
+			}
+		}));
 		mButtons.add(mBtn);
 		mLayer.attachChild(mBtn);
 		mScene.registerTouchArea(mBtn);

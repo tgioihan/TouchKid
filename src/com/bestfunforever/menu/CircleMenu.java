@@ -22,6 +22,10 @@ import com.bestfunforever.touchkids.Entity.BubbleSprite;
 
 public class CircleMenu extends BaseMenu {
 
+	public static final int MENU_SETTING = 1;
+	public static final int MENU_EXIT = 2;
+	public static final int MENU_1 = 3;
+
 	private SimpleBaseGameActivity context;
 	private float camera_height;
 	private float camera_width;
@@ -40,14 +44,15 @@ public class CircleMenu extends BaseMenu {
 	private Sprite holderBgSprite;
 
 	public CircleMenu(SimpleBaseGameActivity context, Camera mCamera, float ratio) {
+		super();
 		this.context = context;
 		this.camera_height = mCamera.getHeight();
 		this.camera_width = mCamera.getHeight();
 		this.stage = STAGE.HIDE;
 		this.ratio = ratio;
 		this.setOnSceneTouchListener(this);
-		this.setOnAreaTouchListener(this);
 		this.setTouchAreaBindingOnActionDownEnabled(true);
+		this.setTouchAreaBindingOnActionMoveEnabled(true);
 		this.setCamera(mCamera);
 		onLoadResource();
 		onCreate();
@@ -107,13 +112,12 @@ public class CircleMenu extends BaseMenu {
 
 	@Override
 	public void onCreate() {
-		controlBgSprite = new BubbleSprite(-menuControlBgTextureRegion.getWidth(), camera_height,ratio, "", null,
+		controlBgSprite = new BubbleSprite(-menuControlBgTextureRegion.getWidth(), camera_height, ratio, "", null,
 				menuControlBgTextureRegion, context.getVertexBufferObjectManager());
 		controlBgSprite.setClickListenner(new IClick() {
 
 			@Override
 			public void onCLick(IAreaShape view) {
-				// TODO Auto-generated method stub
 				if (stage == STAGE.HIDE) {
 					show();
 				} else if (stage == STAGE.SHOW) {
@@ -126,22 +130,25 @@ public class CircleMenu extends BaseMenu {
 
 		derectionMenuSprite = new Sprite(menuControlBgTextureRegion.getWidth() / 2
 				- menuControlDerectionTextureRegion.getWidth() / 2, +menuControlBgTextureRegion.getHeight() / 2
-				- menuControlDerectionTextureRegion.getHeight() / 2,menuControlDerectionTextureRegion.getWidth()*ratio,menuControlDerectionTextureRegion.getHeight()*ratio, menuControlDerectionTextureRegion,
+				- menuControlDerectionTextureRegion.getHeight() / 2, menuControlDerectionTextureRegion.getWidth()
+				* ratio, menuControlDerectionTextureRegion.getHeight() * ratio, menuControlDerectionTextureRegion,
 				context.getVertexBufferObjectManager());
 		controlBgSprite.attachChild(derectionMenuSprite);
 		this.registerTouchArea(controlBgSprite);
-		holderBgSprite = new Sprite(-menuPurpleTextureRegion.getWidth()*ratio, camera_height,menuPurpleTextureRegion.getWidth()*ratio,menuPurpleTextureRegion.getHeight()*ratio, menuPurpleTextureRegion,
-				context.getVertexBufferObjectManager());
+		holderBgSprite = new Sprite(-menuPurpleTextureRegion.getWidth() * ratio, camera_height,
+				menuPurpleTextureRegion.getWidth() * ratio, menuPurpleTextureRegion.getHeight() * ratio,
+				menuPurpleTextureRegion, context.getVertexBufferObjectManager());
 		this.attachChild(holderBgSprite);
 		this.attachChild(controlBgSprite);
 
-		ArrayList<IMenuItem> list = new ArrayList<IMenuItem>();
-		MenuItem menuItem1 = new MenuItem(1, menuExitRegion.getWidth() * ratio, menuExitRegion.getHeight() * ratio,
-				null, null, menuExitRegion, context.getVertexBufferObjectManager());
-		MenuItem menuItem2 = new MenuItem(2, menuExitRegion.getWidth() * ratio, menuExitRegion.getHeight() * ratio,
-				null, null, menuExitRegion, context.getVertexBufferObjectManager());
-		MenuItem menuItem3 = new MenuItem(3, menuExitRegion.getWidth() * ratio, menuExitRegion.getHeight() * ratio,
-				null, null, menuExitRegion, context.getVertexBufferObjectManager());
+		ArrayList<MenuItem> list = new ArrayList<MenuItem>();
+		MenuItem menuItem1 = new MenuItem(MENU_1, iconMapMenuRegion.getWidth() * ratio, iconMapMenuRegion.getHeight()
+				* ratio, null, null, iconMapMenuRegion, context.getVertexBufferObjectManager());
+		MenuItem menuItem2 = new MenuItem(MENU_SETTING, menuSettingsRegion.getWidth() * ratio,
+				menuSettingsRegion.getHeight() * ratio, null, null, menuSettingsRegion,
+				context.getVertexBufferObjectManager());
+		MenuItem menuItem3 = new MenuItem(MENU_EXIT, menuExitRegion.getWidth() * ratio, menuExitRegion.getHeight()
+				* ratio, null, null, menuExitRegion, context.getVertexBufferObjectManager());
 		list.add(menuItem1);
 		list.add(menuItem2);
 		list.add(menuItem3);
@@ -171,6 +178,9 @@ public class CircleMenu extends BaseMenu {
 			}));
 			derectionMenuSprite.registerEntityModifier(new RotationAtModifier(0.5f, 0, 180, derectionMenuSprite
 					.getWidth() / 2, derectionMenuSprite.getHeight() / 2));
+			if (menuListenner != null) {
+				menuListenner.onShow();
+			}
 		}
 	}
 
@@ -193,6 +203,9 @@ public class CircleMenu extends BaseMenu {
 				}
 			}));
 			derectionMenuSprite.registerEntityModifier(new RotationModifier(0.5f, 180, 0));
+			if (menuListenner != null) {
+				menuListenner.onHide();
+			}
 		}
 	}
 
@@ -206,15 +219,16 @@ public class CircleMenu extends BaseMenu {
 	@Override
 	public void invalidate() {
 		padding = 60;
-		float degreeOffset = 90 / (mMenuItems.size() );
+		float degreeOffset = 90 / (mMenuItems.size());
 		float R = holderBgSprite.getWidth() - padding;
 
 		for (int i = 0; i < mMenuItems.size(); i++) {
 			MenuItem menuItem = (MenuItem) mMenuItems.get(i);
-			float x = (float) (R * Math.cos(Math.toRadians(degreeOffset * (i )+degreeOffset/2)));
-			float y = (float) (R * Math.sin(Math.toRadians(degreeOffset * (i )+degreeOffset/2)));
+			float x = (float) (R * Math.cos(Math.toRadians(degreeOffset * (i) + degreeOffset / 2)));
+			float y = (float) (R * Math.sin(Math.toRadians(degreeOffset * (i) + degreeOffset / 2)));
 			menuItem.setPosition(x - menuItem.getWidth() / 2, holderBgSprite.getHeight() - y - menuItem.getHeight() / 2);
 			holderBgSprite.attachChild(menuItem);
+			unregisterTouchArea(menuItem);
 			registerTouchArea(menuItem);
 		}
 

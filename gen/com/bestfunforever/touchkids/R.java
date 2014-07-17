@@ -24,14 +24,20 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f030000;
+        public static final int cancel=0x7f03000a;
         public static final int exit=0x7f030005;
         public static final int highscore=0x7f030002;
         public static final int level=0x7f030007;
         public static final int lose=0x7f030008;
         public static final int moregame=0x7f030004;
+        public static final int music=0x7f03000c;
         public static final int new_game=0x7f030001;
+        public static final int oK=0x7f030009;
         public static final int score=0x7f030006;
         public static final int settings=0x7f030003;
+        public static final int sound=0x7f03000b;
+        public static final int state_off=0x7f03000e;
+        public static final int state_on=0x7f03000d;
     }
     public static final class style {
         /** 

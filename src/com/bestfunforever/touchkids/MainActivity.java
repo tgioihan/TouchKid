@@ -3,6 +3,7 @@ package com.bestfunforever.touchkids;
 import java.util.Random;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.runnable.RunnableHandler;
 import org.andengine.engine.options.EngineOptions;
@@ -34,15 +35,18 @@ import android.util.Log;
 
 import com.bestfunforever.dialog.BaseDialog;
 import com.bestfunforever.dialog.Dialog;
+import com.bestfunforever.dialog.IDialog;
+import com.bestfunforever.menu.BaseMenu.IMenuListenner;
+import com.bestfunforever.menu.BaseMenu.IOnMenuItemClickListener;
 import com.bestfunforever.menu.CircleMenu;
+import com.bestfunforever.menu.IMenuItem;
 import com.bestfunforever.touchkids.Entity.ProgessBarColor;
 import com.bestfunforever.touchkids.Pool.GameObjectGenerate;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody.OnTouchBegin;
 import com.bestfunforever.touchkids.game.Game;
 
-public class MainActivity extends SimpleBaseGameActivity implements
-		IUpdateHandler {
+public class MainActivity extends SimpleBaseGameActivity implements IUpdateHandler, IOnMenuItemClickListener, IMenuListenner {
 
 	// ===========================================================
 	// Constants
@@ -66,12 +70,15 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	private TiledTextureRegion mBear3TextureRegion;
 	private TiledTextureRegion mBear4TextureRegion;
 	private TiledTextureRegion mBear5TextureRegion;
+	private TextureRegion mShareFbTextureRegion;
 	private BitmapTextureAtlas mBgBitmapTextureAtlas;
+	private BitmapTextureAtlas mShareFbBitmapTextureAtlas;
 	private TextureRegion mBgTextureRegion;
 
 	private float ratio;
 	private Camera mCamera;
 	private Font mFont;
+	
 
 	// ===========================================================
 	// Constructors
@@ -93,8 +100,8 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		CAMERA_WIDTH = metrics.widthPixels;
 		CAMERA_HEIGHT = metrics.heightPixels;
 		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
-				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH,
+				CAMERA_HEIGHT), mCamera);
 
 	}
 
@@ -102,37 +109,31 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	protected void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
-		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
-		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createFromAsset(this.mBgBitmapTextureAtlas, this, "bg1.png",
-						0, 0); // 64x32
+		this.mBgBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 640, 960, TextureOptions.BILINEAR);
+		this.mBgTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBgBitmapTextureAtlas,
+				this, "bg1.png", 0, 0); // 64x32
 		this.mBgBitmapTextureAtlas.load();
 
-		this.mBitmapTextureAtlas = new BitmapTextureAtlas(
-				this.getTextureManager(), 512, 512, TextureOptions.BILINEAR);
-		this.mBear1TextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"bear1.png", 0, 0, 1, 1); // 64x32
-		this.mBear2TextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"bear2.png", 0, 44, 1, 1); // 64x32
-		this.mBear3TextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"bear3.png", 0, 88, 1, 1); // 64x32
-		this.mBear4TextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"bear4.png", 0, 132, 1, 1); // 64x32
-		this.mBear5TextureRegion = BitmapTextureAtlasTextureRegionFactory
-				.createTiledFromAsset(this.mBitmapTextureAtlas, this,
-						"bear5.png", 0, 176, 1, 1); // 64x32
+		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 512, 512, TextureOptions.BILINEAR);
+		this.mBear1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				this.mBitmapTextureAtlas, this, "bear1.png", 0, 0, 1, 1); // 64x32
+		this.mBear2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				this.mBitmapTextureAtlas, this, "bear2.png", 0, 44, 1, 1); // 64x32
+		this.mBear3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				this.mBitmapTextureAtlas, this, "bear3.png", 0, 88, 1, 1); // 64x32
+		this.mBear4TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				this.mBitmapTextureAtlas, this, "bear4.png", 0, 132, 1, 1); // 64x32
+		this.mBear5TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+				this.mBitmapTextureAtlas, this, "bear5.png", 0, 176, 1, 1); // 64x32
 		this.mBitmapTextureAtlas.load();
 
-		this.mFont = FontFactory.create(this.getFontManager(),
-				this.getTextureManager(), (int) (256 * ratio),
-				(int) (256 * ratio),
-				Typeface.create(Typeface.DEFAULT, Typeface.BOLD),
-				(int) (32 * ratio));
+		this.mShareFbBitmapTextureAtlas = new BitmapTextureAtlas(getTextureManager(), 240, 95, TextureOptions.BILINEAR);
+		this.mShareFbTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+				this.mShareFbBitmapTextureAtlas, this, "sharefb_btn.png", 0, 0); // 64x32
+		this.mShareFbBitmapTextureAtlas.load();
+
+		this.mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), (int) (256 * ratio),
+				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (32 * ratio));
 		this.mFont.load();
 	}
 
@@ -147,26 +148,28 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		mGame = new Game(1);
 		this.mScene = new Scene();
-		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0,
-				CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
+		this.mScene.setBackground(new SpriteBackground(new Sprite(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
 				getVertexBufferObjectManager())));
 		// this.mScene.setOnSceneTouchListener(this);
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mEngine.registerUpdateHandler(this);
-		this.spriteGroup = new SpriteGroup(this.mBitmapTextureAtlas, 1000,
-				this.getVertexBufferObjectManager());
+		this.spriteGroup = new SpriteGroup(this.mBitmapTextureAtlas, 1000, this.getVertexBufferObjectManager());
 		mScene.attachChild(spriteGroup);
 
 		circleMenu = new CircleMenu(this, mCamera, ratio);
+		circleMenu.setOnMenuItemClickListener(this);
+		circleMenu.setMenuListenner(this);
 		circleMenu.attackScene(mScene);
-		
-		padding = padding*ratio;
-		scoreText = new Text(padding, padding, mFont, getString(R.string.score)+1000, getVertexBufferObjectManager());
-		levelText = new Text(0, padding, mFont, getString(R.string.level)+10, getVertexBufferObjectManager());
-		progress = new ProgessBarColor(scoreText.getX()+scoreText.getWidth()+10, padding, CAMERA_WIDTH-2*padding -scoreText.getWidth()-levelText.getWidth()-2*10, 30*ratio, 100, Color.RED, 2*ratio, Color.GREEN, Color.WHITE, getVertexBufferObjectManager());
-		levelText.setX(progress.getX()+progress.getWidth()+10);
-		scoreText.setText(getString(R.string.score)+mGame.getScore()+"");
-		levelText.setText(getString(R.string.level)+mGame.getLevel());
+
+		padding = padding * ratio;
+		scoreText = new Text(padding, padding, mFont, getString(R.string.score) + 1000, getVertexBufferObjectManager());
+		levelText = new Text(0, padding, mFont, getString(R.string.level) + 10, getVertexBufferObjectManager());
+		progress = new ProgessBarColor(scoreText.getX() + scoreText.getWidth() + 10, padding, CAMERA_WIDTH - 2
+				* padding - scoreText.getWidth() - levelText.getWidth() - 2 * 10, 30 * ratio, 100, Color.RED,
+				2 * ratio, Color.GREEN, Color.WHITE, getVertexBufferObjectManager());
+		levelText.setX(progress.getX() + progress.getWidth() + 10);
+		scoreText.setText(getString(R.string.score) + mGame.getScore() + "");
+		levelText.setText(getString(R.string.level) + mGame.getLevel());
 		mScene.attachChild(scoreText);
 		mScene.attachChild(progress);
 		mScene.attachChild(levelText);
@@ -185,8 +188,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		int pID = mRandom.nextInt(5);
 		final SpriteWithBody sprite = mPool.obtainPoolItem(pID);
 		sprite.setPID(pID);
-		sprite.setPosition((CAMERA_WIDTH - 32) * mRandom.nextFloat(), -2.5f
-				* mGame.getLevel() * sprite.getHeight());
+		sprite.setPosition((CAMERA_WIDTH - 32) * mRandom.nextFloat(), -2.5f * mGame.getLevel() * sprite.getHeight());
 		sprite.setVelocity(mGame.getVelocity());
 		sprite.setVisible(true);
 		sprite.setOnTouchBegin(new OnTouchBegin() {
@@ -195,15 +197,13 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			public void onTouchBegin() {
 				removeGameObject(sprite);
 				boolean passLv = mGame.incressScore(1);
-				scoreText.setText(getString(R.string.score) + mGame.getScore()
-						+ "");
-				if(passLv){
-					levelText.setText(getString(R.string.level)+mGame.getLevel());
+				scoreText.setText(getString(R.string.score) + mGame.getScore() + "");
+				if (passLv) {
+					levelText.setText(getString(R.string.level) + mGame.getLevel());
 				}
 			}
 		});
-		Log.d("", "onTimePassed pId " + pID + " " + sprite.getX() + " "
-				+ sprite.getY());
+		Log.d("", "onTimePassed pId " + pID + " " + sprite.getX() + " " + sprite.getY());
 		mScene.registerTouchArea(sprite);
 		spriteGroup.attachChild(sprite);
 		mGameObject.add(sprite);
@@ -211,16 +211,11 @@ public class MainActivity extends SimpleBaseGameActivity implements
 
 	private void createPool() {
 		mPool = new MultiPool<SpriteWithBody>();
-		mPool.registerPool(0, new GameObjectGenerate(mBear1TextureRegion,
-				ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(1, new GameObjectGenerate(mBear2TextureRegion,
-				ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(2, new GameObjectGenerate(mBear3TextureRegion,
-				ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(3, new GameObjectGenerate(mBear4TextureRegion,
-				ratio, getVertexBufferObjectManager()));
-		mPool.registerPool(4, new GameObjectGenerate(mBear5TextureRegion,
-				ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(0, new GameObjectGenerate(mBear1TextureRegion, ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(1, new GameObjectGenerate(mBear2TextureRegion, ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(2, new GameObjectGenerate(mBear3TextureRegion, ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(3, new GameObjectGenerate(mBear4TextureRegion, ratio, getVertexBufferObjectManager()));
+		mPool.registerPool(4, new GameObjectGenerate(mBear5TextureRegion, ratio, getVertexBufferObjectManager()));
 	}
 
 	private float countGenerateTime = 0;
@@ -234,7 +229,8 @@ public class MainActivity extends SimpleBaseGameActivity implements
 				progress.setPercent(mGame.getPercentObjectDeath());
 				if (isDeath) {
 					mEngine.unregisterUpdateHandler(MainActivity.this);
-					createDialog(getString(R.string.lose));
+					createEndGameDialog();
+					return;
 				}
 				continue;
 			} else
@@ -264,25 +260,89 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		});
 	}
 
-	protected void createDialog(String string) {
-		// TODO Auto-generated method stub
-		BaseDialog mDialog = new BaseDialog(this, mCamera, ratio);
-		mDialog.setTitle(string);
-		mDialog.setLeftButton("OK",
-				new com.bestfunforever.dialog.IDialog.IClick() {
+	protected void createEndGameDialog() {
+		mEngine.unregisterUpdateHandler(MainActivity.this);
+		ScoreDialog dialog = new ScoreDialog(this, mCamera, ratio, mGame.getScore(), mGame.getLevel());
+		dialog.setLeftButton("OK", new com.bestfunforever.dialog.IDialog.IClick() {
 
+			@Override
+			public void onClick(Dialog dialog, IEntity view) {
+				dialog.dismiss();
+				dialog.setDialogListenner(new IDialog() {
+					
 					@Override
-					public void onClick(Dialog dialog, IEntity view) {
-						dialog.dismiss();
+					public void onOpen() {
+						
+					}
+					
+					@Override
+					public void onClose() {
+						finish();
 					}
 				});
-		mDialog.setOpenAnim(new ScaleModifier(1, 1, 1, 0, 1));
-		mDialog.setCloseAnim(new ScaleModifier(0.4f, 1, 1, 1, 0));
-		mDialog.show(circleMenu);
+			}
+		});
+		dialog.setRightButton(null, mShareFbTextureRegion, new com.bestfunforever.dialog.IDialog.IClick() {
+
+			@Override
+			public void onClick(Dialog dialog, IEntity view) {
+				
+			}
+		});
+		dialog.show(circleMenu);
 	}
 
 	@Override
 	public void reset() {
 
+	}
+	
+	protected void createSettingDialog() {
+		// TODO Auto-generated method stub
+		mEngine.unregisterUpdateHandler(MainActivity.this);
+		BaseDialog mDialog = new SettingDialog(this, mCamera, ratio);
+		mDialog.setDialogListenner(new IDialog() {
+			
+			@Override
+			public void onOpen() {
+				mEngine.unregisterUpdateHandler(MainActivity.this);
+			}
+			
+			@Override
+			public void onClose() {
+				mEngine.registerUpdateHandler(MainActivity.this);
+			}
+		});
+		mDialog.show(circleMenu);
+	}
+
+	@Override
+	public boolean onMenuItemClicked(HUD pMenuScene, IMenuItem pMenuItem) {
+		int id = pMenuItem.getID();
+		switch (id) {
+		case CircleMenu.MENU_SETTING:
+			createSettingDialog();
+			break;
+		case CircleMenu.MENU_EXIT:
+			finish();
+			break;
+		case CircleMenu.MENU_1:
+
+			break;
+
+		default:
+			break;
+		}
+		return true;
+	}
+
+	@Override
+	public void onShow() {
+		mEngine.unregisterUpdateHandler(MainActivity.this);
+	}
+
+	@Override
+	public void onHide() {
+		mEngine.registerUpdateHandler(MainActivity.this);
 	}
 }

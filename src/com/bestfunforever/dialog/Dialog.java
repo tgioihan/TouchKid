@@ -10,9 +10,15 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
+
+import com.bestfunforever.andengine.uikit.entity.IClick;
+import com.bestfunforever.touchkids.Entity.BubbleSprite;
 
 import android.util.Log;
 
@@ -33,6 +39,8 @@ public abstract class Dialog extends HUD {
 	protected SimpleBaseGameActivity context;
 	protected float ratio;
 	protected Sprite bgSprite;
+	protected BubbleSprite mLeftButton;
+	protected BubbleSprite mRightButton;
 
 	public Dialog(SimpleBaseGameActivity context, Camera camera, float ratio) {
 		setCamera(camera);
@@ -55,6 +63,33 @@ public abstract class Dialog extends HUD {
 				return true;
 			}
 		});
+	}
+	
+	
+	public void setLeftButton(float pX, float pY, float pWidth, float pHeight, IEntity parrent, String label, ITextureRegion textureRegion, Font font, IClick iclick, VertexBufferObjectManager vertexBufferObjectManager){
+		mLeftButton = addButton(pX, pY, pWidth, pHeight, parrent, true, label, textureRegion, font, iclick, vertexBufferObjectManager);
+		registerTouchArea(mLeftButton);
+		invalidate();
+	}
+	
+	public void setRightButton(float pX, float pY, float pWidth, float pHeight, IEntity parrent, String label, ITextureRegion textureRegion, Font font, IClick iclick, VertexBufferObjectManager vertexBufferObjectManager){
+		mRightButton = addButton(pX, pY, pWidth, pHeight, parrent, false, label, textureRegion, font, iclick, vertexBufferObjectManager);
+		registerTouchArea(mRightButton);
+		invalidate();
+	}
+	
+	/**
+	 * recalculate height for dialog , layout all child
+	 */
+	protected void invalidate() {
+	}
+	
+	public BubbleSprite addButton(float pX,float pY, float pWidth,float pHeight,IEntity parrent,boolean left, String label, ITextureRegion textureRegion,Font font, IClick iclick,VertexBufferObjectManager vertexBufferObjectManager) {
+		BubbleSprite mBubbleSprite = new BubbleSprite(pX,pY,pWidth,pHeight, label, font, textureRegion,
+				vertexBufferObjectManager);
+		mBubbleSprite.setClickListenner(iclick);
+		parrent.attachChild(mBubbleSprite);
+		return mBubbleSprite;
 	}
 
 	public void show(Scene scene) {
@@ -90,11 +125,11 @@ public abstract class Dialog extends HUD {
 
 				@Override
 				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-					onClose();
 				}
 
 				@Override
 				public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+					onClose();
 					if (mParentScene != null) {
 						(mParentScene).clearChildScene();
 					}
