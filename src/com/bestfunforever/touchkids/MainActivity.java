@@ -457,8 +457,9 @@ public class MainActivity extends SimpleBaseGameActivity implements
 
 	private void endGame() {
 		mEngine.unregisterUpdateHandler(MainActivity.this);
-		String accName = preferences.getString(NAME_KEY, null);
-		if(accName == null){
+		pause = true;
+//		String accName = preferences.getString(NAME_KEY, null);
+//		if(accName == null){
 			runOnUiThread(new Runnable() {
 				
 				@Override
@@ -467,9 +468,9 @@ public class MainActivity extends SimpleBaseGameActivity implements
 				}
 			});
 			
-		}else{
-			createEndGameDialog();
-		}
+//		}else{
+//			createEndGameDialog();
+//		}
 	}
 
 	private void createInputNameDialog() {
