@@ -46,9 +46,16 @@ public class ItemView extends Rectangle {
 	}
 
 	public void setHighScore(HighScore highScore) {
-		mNameText.setText(highScore.getName());
-		scoreText.setText(highScore.getScore() + "");
-		levelText.setText(highScore.getLevel() + "");
+		if(highScore.getId() == -1){
+			mNameText.setText("");
+			scoreText.setText( "");
+			levelText.setText("");
+		}else{
+			mNameText.setText(highScore.getName());
+			scoreText.setText(highScore.getScore() + "");
+			levelText.setText(highScore.getLevel() + "");
+		}
+		
 	}
 
 }

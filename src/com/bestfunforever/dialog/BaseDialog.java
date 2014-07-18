@@ -25,7 +25,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 import com.bestfunforever.andengine.uikit.entity.IClick;
-import com.bestfunforever.touchkids.Entity.BubbleSprite;
+import com.bestfunforever.bearforkids.Entity.BubbleSprite;
 
 public class BaseDialog extends Dialog {
 

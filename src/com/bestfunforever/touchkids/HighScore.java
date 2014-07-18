@@ -57,4 +57,12 @@ public class HighScore {
 		this.createdTime = createTime;
 	}
 
+	public HighScore(String name, int score, int level, long createTime) {
+		super();
+		this.name = name;
+		this.score = score;
+		this.level = level;
+		this.createdTime = createTime;
+	}
+
 }

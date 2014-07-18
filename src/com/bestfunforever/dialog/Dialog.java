@@ -18,7 +18,7 @@ import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.IModifier.IModifierListener;
 
 import com.bestfunforever.andengine.uikit.entity.IClick;
-import com.bestfunforever.touchkids.Entity.BubbleSprite;
+import com.bestfunforever.bearforkids.Entity.BubbleSprite;
 
 import android.util.Log;
 

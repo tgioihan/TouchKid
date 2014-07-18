@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <string name="app_id">743538749017816</string>
     <string name="app_name">Bear For Kids</string>
     <string name="new_game">New Game</string>
     <string name="highscore">High Score</string>
@@ -18,5 +19,9 @@
     <string name="state_off">OFF</string>
     <string name="startgame">Start Game</string>
     <string name="levelup">Level Up !</string>
+    <string name="name">Name</string>
+    <string name="accname">Account Name</string>
+    <string name="inputname">Please input your name</string>
+    <string name="sharemsg">I have just pass</string>
 
 </resources>

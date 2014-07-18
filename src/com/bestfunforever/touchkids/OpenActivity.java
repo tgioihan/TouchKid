@@ -156,7 +156,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 	public synchronized void onResumeGame() {
 		// TODO Auto-generated method stub
 		super.onResumeGame();
-		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+		if(SoundManger.isMusicEnable(preferences)){
 			playMusic();
 		}
 		for (int i = 0; i < mButtons.size(); i++) {
@@ -188,7 +188,7 @@ public class OpenActivity extends SimpleBaseGameActivity {
 	@Override
 	protected Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+		if(SoundManger.isMusicEnable(preferences)){
 			playMusic();
 		}
 		this.mScene = new Scene();
