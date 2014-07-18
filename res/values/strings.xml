@@ -18,5 +18,8 @@
     <string name="state_off">OFF</string>
     <string name="startgame">Start Game</string>
     <string name="levelup">Level Up !</string>
+    <string name="name">Name</string>
+    <string name="accname">Account Name</string>
+    <string name="inputname">Please input your name</string>
 
 </resources>

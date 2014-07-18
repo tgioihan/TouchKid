@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.bestfunforever.touchkids.HighScore;
 import com.bestfunforever.touchkids.HighScoreSorter;
@@ -80,6 +81,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	
 	public ArrayList<HighScore> getHighScore(){
 		SQLiteDatabase db= getReadableDatabase();
+		ArrayList<HighScore> highScores = getHighScoreFromDb(db);
+		db.close();
+		return highScores;
+	}
+	
+	private ArrayList<HighScore> getHighScoreFromDb(SQLiteDatabase db){
 		Cursor c = db.rawQuery("select * from "+HightScoreTable.NAME, null);
 		ArrayList<HighScore> highScores = new ArrayList<HighScore>();
 		if(c.moveToFirst()){
@@ -94,16 +101,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				highScores.add(highScore);
 			} while (c.moveToNext());
 		}
+		
 		if(highScores.size()>0){
 			HighScore last = highScores.get(highScores.size()-1);
+			Log.d("", "before last highscore "+last);
 			Collections.sort(highScores, new HighScoreSorter());
 			HighScore mLast = highScores.get(highScores.size()-1);
+			Log.d("", "after last highscore "+mLast);
 			if(mLast != last){
 				updateHightScore(last.getId(), mLast, db);
 				updateHightScore(mLast.getId(), last, db);
 			}
 		}
-		db.close();
 		c.close();
 		return highScores;
 	}
@@ -116,15 +125,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		vl.put(HightScoreTable.Column.SCORE, highScore.getScore());
 		db.update(HightScoreTable.NAME, vl, HightScoreTable.Column.ID+"="+id, null);
 	}
+
+	public static final int MAX_HIGHSCORE = 30;
 	
 	public void insertHighScore(HighScore highScore){
+		
 		SQLiteDatabase db= getReadableDatabase();
-		ContentValues vl = new ContentValues();
-		vl.put(HightScoreTable.Column.NAME, highScore.getName());
-		vl.put(HightScoreTable.Column.DATE_CREATED, highScore.getCreatedTime());
-		vl.put(HightScoreTable.Column.level, highScore.getLevel());
-		vl.put(HightScoreTable.Column.SCORE, highScore.getScore());
-		db.insert(HightScoreTable.NAME,null, vl);
+		ArrayList<HighScore> highScores = getHighScoreFromDb(db);
+		if(highScores.size()>=MAX_HIGHSCORE){
+			Log.d("", "insertHighScore highscore size = "+MAX_HIGHSCORE);
+			HighScore last = highScores.get(highScores.size()-1);
+			Log.d("", "insertHighScore last highscore "+last);
+			updateHightScore(last.getId(), highScore, db);
+		}else{
+			Log.d("", "insertHighScore highscore size < "+MAX_HIGHSCORE);
+			ContentValues vl = new ContentValues();
+			vl.put(HightScoreTable.Column.NAME, highScore.getName());
+			vl.put(HightScoreTable.Column.DATE_CREATED, highScore.getCreatedTime());
+			vl.put(HightScoreTable.Column.level, highScore.getLevel());
+			vl.put(HightScoreTable.Column.SCORE, highScore.getScore());
+			db.insert(HightScoreTable.NAME,null, vl);
+		}
 		db.close();
 	}
 	

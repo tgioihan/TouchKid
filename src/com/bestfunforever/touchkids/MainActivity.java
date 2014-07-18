@@ -1,6 +1,7 @@
 package com.bestfunforever.touchkids;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Random;
 
 import org.andengine.audio.music.Music;
@@ -36,13 +37,18 @@ import org.andengine.util.adt.list.SmartList;
 import org.andengine.util.adt.pool.MultiPool;
 import org.andengine.util.color.Color;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.net.NetworkInfo.DetailedState;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
 import com.bestfunforever.dialog.Dialog;
 import com.bestfunforever.dialog.IDialog;
@@ -55,6 +61,7 @@ import com.bestfunforever.touchkids.Entity.ProgessBarColor;
 import com.bestfunforever.touchkids.Pool.GameObjectGenerate;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody;
 import com.bestfunforever.touchkids.Pool.SpriteWithBody.OnTouchBegin;
+import com.bestfunforever.touchkids.database.DatabaseHelper;
 import com.bestfunforever.touchkids.game.Game;
 
 public class MainActivity extends SimpleBaseGameActivity implements
@@ -93,6 +100,11 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	private Sound clickSound;
 	private Music music;
 	private Font bigFont;
+	
+	private DatabaseHelper databaseHelper;
+	private boolean pause= false;
+	
+	public static final String NAME_KEY = "name";
 
 	// ===========================================================
 	// Constructors
@@ -110,6 +122,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	protected void onCreate(Bundle pSavedInstanceState) {
 		super.onCreate(pSavedInstanceState);
 		preferences = getSharedPreferences("BearforKid", 0);
+		databaseHelper = new DatabaseHelper(getApplicationContext());
 	}
 	
 	@Override
@@ -139,11 +152,6 @@ public class MainActivity extends SimpleBaseGameActivity implements
 				.createFromAsset(this.mBgBitmapTextureAtlas, this, "bg1.png",
 						0, 0); // 64x32
 		this.mBgBitmapTextureAtlas.load();
-
-		loadResource();
-
-		loadSound();
-		loadMusic();
 	}
 	
 	private void loadResource() {
@@ -227,7 +235,7 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	public synchronized void onResumeGame() {
 		// TODO Auto-generated method stub
 		super.onResumeGame();
-		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
+		if(SoundManger.isMusicEnable(preferences)){
 			playMusic();
 		}
 	}
@@ -239,9 +247,6 @@ public class MainActivity extends SimpleBaseGameActivity implements
 				CAMERA_WIDTH, CAMERA_HEIGHT, mBgTextureRegion,
 				getVertexBufferObjectManager())));
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		if(music!=null && !music.isPlaying()&&SoundManger.isMusicEnable(preferences)){
-			playMusic();
-		}
 		this.mEngine.registerUpdateHandler(mTimerHandler);
 		return mScene;
 	}
@@ -258,6 +263,9 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	});
 	
 	public void init(){
+		if(SoundManger.isMusicEnable(preferences)){
+			playMusic();
+		}
 		mGame = new Game(1);
 		// this.mScene.setOnSceneTouchListener(this);
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
@@ -293,42 +301,6 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	}
 	
 	Text bigText ;
-	
-	TimerHandler startGameTimeHandler = new TimerHandler(2f, new ITimerCallback() {
-		
-		@Override
-		public void onTimePassed(TimerHandler pTimerHandler) {
-			// TODO Auto-generated method stub
-			runOnUpdateThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					mScene.detachChild(bigText);
-					bigText.unregisterUpdateHandler(startGameTimeHandler);
-					start();
-				}
-			});
-		}
-	});
-	
-	TimerHandler levelUpTimeHandler = new TimerHandler(1.5f, new ITimerCallback() {
-		
-		@Override
-		public void onTimePassed(TimerHandler pTimerHandler) {
-			// TODO Auto-generated method stub
-			runOnUpdateThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					mScene.detachChild(bigText);
-					bigText.unregisterUpdateHandler(startGameTimeHandler);
-					mEngine.registerUpdateHandler(MainActivity.this);
-				}
-			});
-		}
-	});
 
 	private void onStartGame() {
 		if(bigText == null){
@@ -337,7 +309,23 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		bigText.setText(getString(R.string.startgame));
 		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT/2-bigText.getHeight()/2);
 		mScene.attachChild(bigText);
-		bigText.registerUpdateHandler(startGameTimeHandler);
+		bigText.registerUpdateHandler( new TimerHandler(2f, new ITimerCallback() {
+			
+			@Override
+			public void onTimePassed(final TimerHandler pTimerHandler) {
+				// TODO Auto-generated method stub
+				runOnUpdateThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						mScene.detachChild(bigText);
+						bigText.unregisterUpdateHandler(pTimerHandler);
+						start();
+					}
+				});
+			}
+		}));
 	}
 
 	Random mRandom = new Random();
@@ -358,15 +346,17 @@ public class MainActivity extends SimpleBaseGameActivity implements
 
 			@Override
 			public void onTouchBegin() {
-				playCLick();
-				removeGameObject(sprite);
-				boolean passLv = mGame.incressScore(1);
-				scoreText.setText(getString(R.string.score) + mGame.getScore()
-						+ "");
-				if (passLv) {
-					levelText.setText(getString(R.string.level)
-							+ mGame.getLevel());
-					onLevelUp(mGame.getLevel());
+				if(!pause){
+					playCLick();
+					removeGameObject(sprite);
+					boolean passLv = mGame.incressScore(1);
+					scoreText.setText(getString(R.string.score) + mGame.getScore()
+							+ "");
+					if (passLv) {
+						levelText.setText(getString(R.string.level)
+								+ mGame.getLevel());
+						onLevelUp(mGame.getLevel());
+					}
 				}
 			}
 		});
@@ -385,7 +375,25 @@ public class MainActivity extends SimpleBaseGameActivity implements
 		bigText.setPosition(CAMERA_WIDTH/2-bigText.getWidth()/2, CAMERA_HEIGHT/2-bigText.getHeight()/2);
 		mScene.attachChild(bigText);
 		mEngine.unregisterUpdateHandler(this);
-		bigText.registerUpdateHandler(levelUpTimeHandler);
+		pause = true;
+		bigText.registerUpdateHandler(new TimerHandler(1.5f, new ITimerCallback() {
+			
+			@Override
+			public void onTimePassed(final TimerHandler pTimerHandler) {
+				// TODO Auto-generated method stub
+				runOnUpdateThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						mScene.detachChild(bigText);
+						bigText.unregisterUpdateHandler(pTimerHandler);
+						mEngine.registerUpdateHandler(MainActivity.this);
+						pause = false;
+					}
+				});
+			}
+		}));
 	}
 
 	private void createPool() {
@@ -410,10 +418,11 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			if (spriteWithBody.getY() > CAMERA_HEIGHT) {
 				removeGameObject(spriteWithBody);
 				boolean isDeath = mGame.incressObjectDeathCount(1);
-				progress.setPercent(mGame.getPercentObjectDeath());
+				progress.setPercent(100-mGame.getPercentObjectDeath());
 				if (isDeath) {
 					mEngine.unregisterUpdateHandler(MainActivity.this);
-					createEndGameDialog();
+					pause = true;
+					endGame();
 					return;
 				}
 				continue;
@@ -444,9 +453,50 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			}
 		});
 	}
+	
+
+	private void endGame() {
+		mEngine.unregisterUpdateHandler(MainActivity.this);
+		String accName = preferences.getString(NAME_KEY, null);
+		if(accName == null){
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					createInputNameDialog();
+				}
+			});
+			
+		}else{
+			createEndGameDialog();
+		}
+	}
+
+	private void createInputNameDialog() {
+		AlertDialog.Builder builder = new Builder(this);
+		builder.setTitle(getString(R.string.accname));
+		View view = LayoutInflater.from(this).inflate(R.layout.dialog, null);
+		final EditText editText = (EditText)view.findViewById(R.id.edit);
+		builder.setView(view)
+		.setPositiveButton(getString(R.string.oK), null);
+		final AlertDialog dialog = builder.create();
+		dialog.show();
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				String name = editText.getText().toString();
+				if(name!=null&&!name.equals("")){
+					preferences.edit().putString(NAME_KEY, editText.getText().toString()).commit();
+					dialog.dismiss();
+					createEndGameDialog();
+				}
+			}
+		});
+	}
 
 	protected void createEndGameDialog() {
-		mEngine.unregisterUpdateHandler(MainActivity.this);
+		
 		ScoreDialog dialog = new ScoreDialog(this, mCamera, ratio,
 				mGame.getScore(), mGame.getLevel());
 		dialog.setLeftButton("OK",
@@ -465,6 +515,9 @@ public class MainActivity extends SimpleBaseGameActivity implements
 
 							@Override
 							public void onClose() {
+								String name = preferences.getString(NAME_KEY, null);
+								HighScore highScore = new HighScore(name, mGame.getScore(), mGame.getLevel(), new Date().getTime());
+								databaseHelper.insertHighScore(highScore );
 								finish();
 							}
 						});
@@ -495,11 +548,13 @@ public class MainActivity extends SimpleBaseGameActivity implements
 			@Override
 			public void onOpen() {
 				mEngine.unregisterUpdateHandler(MainActivity.this);
+				pause = true;
 			}
 
 			@Override
 			public void onClose() {
 				mEngine.registerUpdateHandler(MainActivity.this);
+				pause = false;
 			}
 		});
 		mDialog.setMusicCheckedChangeListenner(new ICheckedChange() {
@@ -575,10 +630,13 @@ public class MainActivity extends SimpleBaseGameActivity implements
 	public void onShow() {
 		playCLick();
 		mEngine.unregisterUpdateHandler(MainActivity.this);
+		pause = true;
 	}
 
 	@Override
 	public void onHide() {
+		playCLick();
 		mEngine.registerUpdateHandler(MainActivity.this);
+		pause = false;
 	}
 }

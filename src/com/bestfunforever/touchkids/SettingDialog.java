@@ -13,6 +13,7 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 
 import android.content.SharedPreferences;
+import android.preference.Preference;
 
 import com.bestfunforever.dialog.BaseDialog;
 import com.bestfunforever.dialog.Dialog;
@@ -42,7 +43,9 @@ public class SettingDialog extends BaseDialog {
 
 					@Override
 					public void onClick(Dialog dialog, IEntity view) {
-						mclickSound.play();
+						if(mclickSound!=null&&SoundManger.isSoundEnable(SettingDialog.this.context)){
+							mclickSound.play();
+						}
 						dialog.dismiss();
 					}
 				});

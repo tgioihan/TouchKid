@@ -9,8 +9,8 @@ public class Game {
 	// Fields
 	// ===========================================================
 	private int velocity;
-	
-	//time in milliseconds
+
+	// time in milliseconds
 	private float generateTime;
 	private int level;
 	private boolean isStart;
@@ -22,11 +22,11 @@ public class Game {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public Game(){
+	public Game() {
 		this(1);
 	}
-	
-	public Game(int level){
+
+	public Game(int level) {
 		velocity = 30;
 		generateTime = 1f;
 		objectDeathTotal = 10;
@@ -39,37 +39,41 @@ public class Game {
 	// ===========================================================
 	private void setLevel(int level) {
 		this.level = level;
-		velocity += velocity/10*level;
+		velocity += 10 * level;
 		objectDeathCount = 0;
-		scoreToPassLv += scoreToPassLv/5*level;
-		objectDeathTotal += objectDeathTotal/10*level;
-		generateTime -= 0.08f*level;
+		scoreToPassLv += 15 * level;
+		objectDeathTotal += 4;
+		if (generateTime - 0.1f * level > 0.2f) {
+			generateTime -= 0.1f * level;
+		}
+
 	}
-	
-	public int getLevel(){
+
+	public int getLevel() {
 		return level;
 	}
-	
-	public boolean isStart(){
+
+	public boolean isStart() {
 		return isStart;
 	}
-	
-	public void start(){
+
+	public void start() {
 		setState(true);
 	}
-	
-	public void end(){
+
+	public void end() {
 		setState(false);
 	}
-	
-	private void setState(boolean isStart){
+
+	private void setState(boolean isStart) {
 		this.isStart = isStart;
 	}
-	public int getVelocity(){
+
+	public int getVelocity() {
 		return velocity;
 	}
-	
-	public float getGenerateTime(){
+
+	public float getGenerateTime() {
 		return generateTime;
 	}
 
@@ -81,28 +85,29 @@ public class Game {
 	}
 
 	/**
-	 * @param score the score to set
+	 * @param score
+	 *            the score to set
 	 */
 	public void setScore(int score) {
 		this.score = score;
 	}
-	
-	public boolean incressObjectDeathCount(int in){
-		objectDeathCount+=in;
-		if(objectDeathCount == objectDeathTotal){
+
+	public boolean incressObjectDeathCount(int in) {
+		objectDeathCount += in;
+		if (objectDeathCount == objectDeathTotal) {
 			return true;
 		}
 		return false;
 	}
-	
-	public int getPercentObjectDeath(){
-		return objectDeathCount*100/objectDeathTotal;
+
+	public int getPercentObjectDeath() {
+		return objectDeathCount * 100 / objectDeathTotal;
 	}
-	
-	public boolean incressScore(int in){
-		score+=in;
-		if(score == scoreToPassLv){
-			setLevel(level+1);
+
+	public boolean incressScore(int in) {
+		score += in;
+		if (score == scoreToPassLv) {
+			setLevel(level + 1);
 			return true;
 		}
 		return false;

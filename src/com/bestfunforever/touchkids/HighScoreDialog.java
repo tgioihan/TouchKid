@@ -31,7 +31,9 @@ public class HighScoreDialog extends BaseDialog {
 
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {
-				HighScoreDialog.this.clickSound.play();
+				if(HighScoreDialog.this.clickSound!=null&&SoundManger.isSoundEnable(HighScoreDialog.this.context)){
+					HighScoreDialog.this.clickSound.play();
+				}
 				dialog.dismiss();
 			}
 		});
@@ -43,15 +45,15 @@ public class HighScoreDialog extends BaseDialog {
 		// float height = height*ratio;
 		mHeight = 300 * ratio;
 		databaseHelper = new DatabaseHelper(context);
-		if(databaseHelper.getHighScore().size()==0){
-			for (int i = 0; i < 30; i++) {
-				HighScore highScore = new HighScore(i, "tuan", 10+i, 3, 213123);
-				databaseHelper.insertHighScore(highScore);
-			}
-		}
 		ListView mListView = new ListView(context, 0, 0, mContentRect.getWidth(), mHeight,
 				context.getVertexBufferObjectManager());
 		ArrayList<HighScore> highScores = databaseHelper.getHighScore();
+		if(highScores.size()<DatabaseHelper.MAX_HIGHSCORE){
+			for (int i = 0; i < DatabaseHelper.MAX_HIGHSCORE-highScores.size(); i++) {
+				HighScore highScore = new HighScore(-1, "", 1, 1, 1);
+				highScores.add(highScore);
+			}
+		}
 		ScoreAdapter adapter = new ScoreAdapter(highScores, mContentRect.getWidth(), mHeight / 5, mFont,
 				context.getVertexBufferObjectManager());
 		mListView.setAdapter(adapter);
