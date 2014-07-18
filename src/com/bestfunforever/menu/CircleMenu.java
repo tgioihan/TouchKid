@@ -24,7 +24,7 @@ public class CircleMenu extends BaseMenu {
 
 	public static final int MENU_SETTING = 1;
 	public static final int MENU_EXIT = 2;
-	public static final int MENU_1 = 3;
+	public static final int MENU_HiGHSCORE = 3;
 
 	private SimpleBaseGameActivity context;
 	private float camera_height;
@@ -34,7 +34,7 @@ public class CircleMenu extends BaseMenu {
 	ArrayList<BitmapTextureAtlas> atlas = new ArrayList<BitmapTextureAtlas>();
 	private TiledTextureRegion menuExitRegion;
 	private TiledTextureRegion menuSettingsRegion;
-	private TiledTextureRegion iconMapMenuRegion;
+	private TiledTextureRegion iconHighScoreMenuRegion;
 	private TiledTextureRegion menuPurpleTextureRegion;
 	private TiledTextureRegion menuControlBgTextureRegion;
 	private TiledTextureRegion menuControlDerectionTextureRegion;
@@ -60,22 +60,22 @@ public class CircleMenu extends BaseMenu {
 	@Override
 	public void onLoadResource() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		BitmapTextureAtlas menuArrowBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (128),
-				(int) (106), TextureOptions.BILINEAR);
-		BitmapTextureAtlas menuSettingsBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (160),
-				(int) (120), TextureOptions.BILINEAR);
+		BitmapTextureAtlas menuArrowBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (140),
+				(int) (140), TextureOptions.BILINEAR);
+		BitmapTextureAtlas menuSettingsBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (140),
+				(int) (140), TextureOptions.BILINEAR);
 		menuExitRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuArrowBitmapTexture, context,
-				"arrow.png", 0, 0, 1, 1);
+				"back_left.png", 0, 0, 1, 1);
 		menuSettingsRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuSettingsBitmapTexture,
 				context, "settings.png", 0, 0, 1, 1);
-		BitmapTextureAtlas mapMenuAtlas = new BitmapTextureAtlas(context.getTextureManager(), (int) (128), (int) (128),
-				TextureOptions.BILINEAR);
-		iconMapMenuRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(mapMenuAtlas, context,
-				"icon_map.png", 0, 0, 1, 1);
-		mapMenuAtlas.load();
+		BitmapTextureAtlas highscoreMenuAtlas = new BitmapTextureAtlas(context.getTextureManager(), (int) (140),
+				(int) (140), TextureOptions.BILINEAR);
+		iconHighScoreMenuRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(highscoreMenuAtlas,
+				context, "high_score.png", 0, 0, 1, 1);
+		highscoreMenuAtlas.load();
 		menuArrowBitmapTexture.load();
 		menuSettingsBitmapTexture.load();
-		atlas.add(mapMenuAtlas);
+		atlas.add(highscoreMenuAtlas);
 		atlas.add(menuArrowBitmapTexture);
 		atlas.add(menuSettingsBitmapTexture);
 
@@ -134,8 +134,9 @@ public class CircleMenu extends BaseMenu {
 		this.attachChild(controlBgSprite);
 
 		ArrayList<MenuItem> list = new ArrayList<MenuItem>();
-		MenuItem menuItem1 = new MenuItem(MENU_1, iconMapMenuRegion.getWidth() * ratio, iconMapMenuRegion.getHeight()
-				* ratio, null, null, iconMapMenuRegion, context.getVertexBufferObjectManager());
+		MenuItem menuItem1 = new MenuItem(MENU_HiGHSCORE, iconHighScoreMenuRegion.getWidth() * ratio,
+				iconHighScoreMenuRegion.getHeight() * ratio, null, null, iconHighScoreMenuRegion,
+				context.getVertexBufferObjectManager());
 		MenuItem menuItem2 = new MenuItem(MENU_SETTING, menuSettingsRegion.getWidth() * ratio,
 				menuSettingsRegion.getHeight() * ratio, null, null, menuSettingsRegion,
 				context.getVertexBufferObjectManager());
