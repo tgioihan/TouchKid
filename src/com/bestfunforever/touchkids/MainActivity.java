@@ -39,8 +39,6 @@ import org.andengine.util.color.Color;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
