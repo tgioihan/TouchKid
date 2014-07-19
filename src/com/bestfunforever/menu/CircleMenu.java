@@ -13,6 +13,7 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.modifier.IModifier;
@@ -60,10 +61,10 @@ public class CircleMenu extends BaseMenu {
 	@Override
 	public void onLoadResource() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		BitmapTextureAtlas menuArrowBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (140),
-				(int) (140), TextureOptions.BILINEAR);
-		BitmapTextureAtlas menuSettingsBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (140),
-				(int) (140), TextureOptions.BILINEAR);
+		BitmapTextureAtlas menuArrowBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (143),
+				(int) (143), TextureOptions.BILINEAR);
+		BitmapTextureAtlas menuSettingsBitmapTexture = new BitmapTextureAtlas(context.getTextureManager(), (int) (143),
+				(int) (143), TextureOptions.BILINEAR);
 		menuExitRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuArrowBitmapTexture, context,
 				"back_left.png", 0, 0, 1, 1);
 		menuSettingsRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(menuSettingsBitmapTexture,
@@ -72,6 +73,9 @@ public class CircleMenu extends BaseMenu {
 				(int) (140), TextureOptions.BILINEAR);
 		iconHighScoreMenuRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(highscoreMenuAtlas,
 				context, "high_score.png", 0, 0, 1, 1);
+		clearITextureRegion(menuExitRegion);
+		clearITextureRegion(menuSettingsRegion);
+		clearITextureRegion(iconHighScoreMenuRegion);
 		highscoreMenuAtlas.load();
 		menuArrowBitmapTexture.load();
 		menuSettingsBitmapTexture.load();
@@ -85,6 +89,7 @@ public class CircleMenu extends BaseMenu {
 		menuPurpleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
 				menuBackgroundTextureAtlas, context, "purple_circle.png", 0, 0, 1, 1);
 		menuBackgroundTextureAtlas.load();
+		clearITextureRegion(menuPurpleTextureRegion);
 		atlas.add(menuBackgroundTextureAtlas);
 
 		BitmapTextureAtlas menuCloseTextureAtlas = new BitmapTextureAtlas(context.getTextureManager(), (int) (128),
@@ -101,6 +106,10 @@ public class CircleMenu extends BaseMenu {
 		menuControlDerectionTextureAtlas.load();
 		atlas.add(menuControlDerectionTextureAtlas);
 	}
+	public static void clearITextureRegion(final ITextureRegion mITextureRegion) {
+		  mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
+		  mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
+		 }
 
 	@Override
 	public void onCreate() {

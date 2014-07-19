@@ -31,6 +31,7 @@ import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.util.adt.list.SmartList;
@@ -49,13 +50,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.bestfunforever.dialog.BaseDialog;
-import com.bestfunforever.dialog.Dialog;
-import com.bestfunforever.dialog.IDialog;
-import com.bestfunforever.menu.BaseMenu.IMenuListenner;
-import com.bestfunforever.menu.BaseMenu.IOnMenuItemClickListener;
-import com.bestfunforever.menu.CircleMenu;
-import com.bestfunforever.menu.IMenuItem;
 import com.bestfunforever.bearforkids.Entity.CheckBox.ICheckedChange;
 import com.bestfunforever.bearforkids.Entity.ProgessBarColor;
 import com.bestfunforever.bearforkids.Pool.GameObjectGenerate;
@@ -64,6 +58,13 @@ import com.bestfunforever.bearforkids.Pool.SpriteWithBody.OnTouchBegin;
 import com.bestfunforever.bearforkids.Pool.SpriteWithBody.State;
 import com.bestfunforever.bearforkids.database.DatabaseHelper;
 import com.bestfunforever.bearforkids.game.Game;
+import com.bestfunforever.dialog.BaseDialog;
+import com.bestfunforever.dialog.Dialog;
+import com.bestfunforever.dialog.IDialog;
+import com.bestfunforever.menu.BaseMenu.IMenuListenner;
+import com.bestfunforever.menu.BaseMenu.IOnMenuItemClickListener;
+import com.bestfunforever.menu.CircleMenu;
+import com.bestfunforever.menu.IMenuItem;
 
 public class MainActivity extends AdmobGameActivity implements IUpdateHandler, IOnMenuItemClickListener,
 		IMenuListenner {
@@ -163,16 +164,17 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 		this.mBear1TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
 				this.mBitmapTextureAtlas, this, "bear1.png", 0, 0, 1, 1); // 64x32
 		this.mBear2TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear2.png", 0, 44, 1, 1); // 64x32
+				this.mBitmapTextureAtlas, this, "bear2.png", 0, 86, 1, 1); // 64x32
 		this.mBear3TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear3.png", 0, 88, 1, 1); // 64x32
+				this.mBitmapTextureAtlas, this, "bear3.png", 0, 170, 1, 1); // 64x32
 		this.mBear4TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear4.png", 0, 132, 1, 1); // 64x32
+				this.mBitmapTextureAtlas, this, "bear4.png", 0, 256, 1, 1); // 64x32
 		this.mBear5TextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-				this.mBitmapTextureAtlas, this, "bear5.png", 0, 176, 1, 1); // 64x32
+				this.mBitmapTextureAtlas, this, "bear5.png", 0, 340, 1, 1); // 64x32
+		clearITextureRegion(mBear3TextureRegion);
 		this.mBitmapTextureAtlas.load();
 
-		this.mShareFbBitmapTextureAtlas = new BitmapTextureAtlas(getTextureManager(), 240, 95, TextureOptions.BILINEAR);
+		this.mShareFbBitmapTextureAtlas = new BitmapTextureAtlas(getTextureManager(), 190, 85, TextureOptions.BILINEAR);
 		this.mShareFbTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(
 				this.mShareFbBitmapTextureAtlas, this, "sharefb_btn.png", 0, 0); // 64x32
 		this.mShareFbBitmapTextureAtlas.load();
@@ -187,6 +189,11 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (32 * ratio));
 		this.mFont.load();
 	}
+	
+	public static void clearITextureRegion(final ITextureRegion mITextureRegion) {
+		  mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
+		  mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
+		 }
 	
 	private void playFinish() {
 		if (finishSound != null && SoundManger.isSoundEnable(preferences)) {
@@ -533,7 +540,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 				});
 			}
 		});
-		dialog.setRightButton(null, mShareFbTextureRegion, new com.bestfunforever.dialog.IDialog.IClick() {
+		dialog.setRightButton(null,mShareFbTextureRegion, new com.bestfunforever.dialog.IDialog.IClick() {
 
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {
@@ -546,7 +553,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 
 	protected void share(int score, int level) {
 		// TODO Auto-generated method stub
-		shareFacebook(getString(R.string.app_name),getString(R.string.sharemsg)+" "+getString(R.string.level)+" "+level+" "+getString(R.string.score)+" "+score, "https://play.google.com/store/apps/details?id="+getPackageName(), null);
+		shareFacebook(getString(R.string.app_name),getString(R.string.sharedesciption),getString(R.string.sharemsg)+" "+getString(R.string.level)+" "+level+" "+getString(R.string.score)+" "+score, "https://play.google.com/store/apps/details?id="+getPackageName(), "https://raw.githubusercontent.com/tgioihan/TouchKid/master/bearforkidicon.png");
 	}
 
 	@Override

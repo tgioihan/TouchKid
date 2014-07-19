@@ -601,6 +601,7 @@ containing a value of this type.
         public static final int oK=0x7f06003d;
         public static final int score=0x7f06003a;
         public static final int settings=0x7f060037;
+        public static final int sharedesciption=0x7f060049;
         public static final int sharemsg=0x7f060048;
         public static final int sound=0x7f06003f;
         public static final int startgame=0x7f060043;

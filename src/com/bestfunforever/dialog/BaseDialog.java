@@ -138,10 +138,6 @@ public class BaseDialog extends Dialog {
 		mTitle.setText(title);
 	}
 
-	public void setLeftButton(String label, final com.bestfunforever.dialog.IDialog.IClick iclick) {
-		setLeftButton(label, mBtnTextureRegion, iclick);
-	}
-
 	@Override
 	protected void invalidate() {
 		super.invalidate();
@@ -174,6 +170,11 @@ public class BaseDialog extends Dialog {
 				* paddingTopBottom + mTitle.getHeight());
 		bgSprite.setHeight(totalHeigt);
 	}
+	
+
+	public void setLeftButton(String label, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+		setLeftButton(label, mBtnTextureRegion, iclick);
+	}
 
 	public void setRightButton(String label, final com.bestfunforever.dialog.IDialog.IClick iclick) {
 		setRightButton(label, mBtnTextureRegion, iclick);
@@ -195,7 +196,7 @@ public class BaseDialog extends Dialog {
 
 	public void setLeftButton(String label, ITextureRegion textureRegion,
 			final com.bestfunforever.dialog.IDialog.IClick iclick) {
-		mLeftButton = addButton(false, label, textureRegion, new IClick() {
+		mLeftButton = addButton(false, label,162*ratio,56*ratio, textureRegion, new IClick() {
 
 			@Override
 			public void onCLick(IAreaShape view) {
@@ -206,9 +207,51 @@ public class BaseDialog extends Dialog {
 		registerTouchArea(mLeftButton);
 		invalidate();
 	}
+	
+	///////
+	public void setLeftButton(String label,float width,float height, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+		setLeftButton(label,width,height, mBtnTextureRegion, iclick);
+	}
+
+	public void setRightButton(String label,float width,float height, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+		setRightButton(label,width,height, mBtnTextureRegion, iclick);
+	}
+
+	public void setRightButton(String label,float width,float height,  ITextureRegion textureRegion,
+			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+		mRightButton = addButton(false, label,width,height, textureRegion, new IClick() {
+
+			@Override
+			public void onCLick(IAreaShape view) {
+				// TODO Auto-generated method stub
+				iclick.onClick(BaseDialog.this, view);
+			}
+		});
+		registerTouchArea(mRightButton);
+		invalidate();
+	}
+
+	public void setLeftButton(String label,float width,float height, ITextureRegion textureRegion,
+			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+		mLeftButton = addButton(false, label, width, height, textureRegion, new IClick() {
+
+			@Override
+			public void onCLick(IAreaShape view) {
+				// TODO Auto-generated method stub
+				iclick.onClick(BaseDialog.this, view);
+			}
+		});
+		registerTouchArea(mLeftButton);
+		invalidate();
+	}
+	
+	public BubbleSprite addButton(boolean left, String label,float width,float height, ITextureRegion textureRegion, IClick iclick) {
+		return addButton(0, 0, width, height, bgSprite, left, label, textureRegion, mFont, iclick,
+				context.getVertexBufferObjectManager());
+	}
 
 	public BubbleSprite addButton(boolean left, String label, ITextureRegion textureRegion, IClick iclick) {
-		return addButton(0, 0, 162 * ratio, 56 * ratio, bgSprite, left, label, textureRegion, mFont, iclick,
+		return addButton(0, 0, textureRegion.getWidth()*ratio, textureRegion.getHeight() * ratio, bgSprite, left, label, textureRegion, mFont, iclick,
 				context.getVertexBufferObjectManager());
 	}
 

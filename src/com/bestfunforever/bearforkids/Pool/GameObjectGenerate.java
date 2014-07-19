@@ -22,7 +22,7 @@ public class GameObjectGenerate extends GenericPool<SpriteWithBody>{
 	@Override
 	protected SpriteWithBody onAllocatePoolItem() {
 		SpriteWithBody animatedSprite = new SpriteWithBody(0, 0,ratio, mTiledTextureRegion, vertexBufferObject);
-		animatedSprite.setScale(ratio*2.5f);
+		animatedSprite.setScale(ratio);
 //		animatedSprite.animate(200);
 		return animatedSprite;
 	}

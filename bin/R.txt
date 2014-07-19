@@ -242,6 +242,7 @@ int string new_game 0x7f060035
 int string oK 0x7f06003d
 int string score 0x7f06003a
 int string settings 0x7f060037
+int string sharedesciption 0x7f060049
 int string sharemsg 0x7f060048
 int string sound 0x7f06003f
 int string startgame 0x7f060043
