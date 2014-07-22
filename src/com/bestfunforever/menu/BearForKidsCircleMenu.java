@@ -3,11 +3,7 @@ package com.bestfunforever.menu;
 import java.util.ArrayList;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveModifier;
-import org.andengine.entity.modifier.RotationAtModifier;
-import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.TextureOptions;
@@ -16,46 +12,27 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.modifier.IModifier;
 
+import com.bestfunforever.andengine.uikit.entity.BubbleSprite;
 import com.bestfunforever.andengine.uikit.entity.IClick;
-import com.bestfunforever.bearforkids.Entity.BubbleSprite;
+import com.bestfunforever.andengine.uikit.menu.CircleMenu;
+import com.bestfunforever.andengine.uikit.menu.MenuItem;
 
-public class CircleMenu extends BaseMenu {
+public class BearForKidsCircleMenu extends CircleMenu {
 
 	public static final int MENU_SETTING = 1;
 	public static final int MENU_EXIT = 2;
 	public static final int MENU_HiGHSCORE = 3;
 
-	private SimpleBaseGameActivity context;
-	private float camera_height;
-	private float camera_width;
-	private float ratio;
-
-	ArrayList<BitmapTextureAtlas> atlas = new ArrayList<BitmapTextureAtlas>();
 	private TiledTextureRegion menuExitRegion;
 	private TiledTextureRegion menuSettingsRegion;
 	private TiledTextureRegion iconHighScoreMenuRegion;
 	private TiledTextureRegion menuPurpleTextureRegion;
 	private TiledTextureRegion menuControlBgTextureRegion;
 	private TiledTextureRegion menuControlDerectionTextureRegion;
-	private BubbleSprite controlBgSprite;
-	private Sprite derectionMenuSprite;
-	private Sprite holderBgSprite;
 
-	public CircleMenu(SimpleBaseGameActivity context, Camera mCamera, float ratio) {
-		super();
-		this.context = context;
-		this.camera_height = mCamera.getHeight();
-		this.camera_width = mCamera.getWidth();
-		this.stage = STAGE.HIDE;
-		this.ratio = ratio;
-		this.setOnSceneTouchListener(this);
-		this.setTouchAreaBindingOnActionDownEnabled(true);
-		this.setTouchAreaBindingOnActionMoveEnabled(true);
-		this.setCamera(mCamera);
-		onLoadResource();
-		onCreate();
+	public BearForKidsCircleMenu(SimpleBaseGameActivity context, Camera mCamera, float ratio) {
+		super(context, mCamera, ratio);
 	}
 
 	@Override
@@ -106,10 +83,11 @@ public class CircleMenu extends BaseMenu {
 		menuControlDerectionTextureAtlas.load();
 		atlas.add(menuControlDerectionTextureAtlas);
 	}
+
 	public static void clearITextureRegion(final ITextureRegion mITextureRegion) {
-		  mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
-		  mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
-		 }
+		mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
+		mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
+	}
 
 	@Override
 	public void onCreate() {
@@ -157,85 +135,6 @@ public class CircleMenu extends BaseMenu {
 
 		addMenuItem(list);
 		stage = STAGE.HIDE;
-
-	}
-
-	@Override
-	protected void show() {
-		super.show();
-		if (stage == STAGE.HIDE) {
-			holderBgSprite.registerEntityModifier(new MoveModifier(0.3f, holderBgSprite.getX(), 0, holderBgSprite
-					.getY(), camera_height - holderBgSprite.getHeight(), new IEntityModifierListener() {
-
-				@Override
-				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-					stage = STAGE.ANIMATE;
-					pItem.setVisible(true);
-				}
-
-				@Override
-				public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-					stage = STAGE.SHOW;
-				}
-			}));
-			derectionMenuSprite.registerEntityModifier(new RotationAtModifier(0.5f, 0, 180, derectionMenuSprite
-					.getWidth() / 2, derectionMenuSprite.getHeight() / 2));
-			if (menuListenner != null) {
-				menuListenner.onShow();
-			}
-		}
-	}
-
-	@Override
-	protected void hide() {
-		super.hide();
-		if (stage == STAGE.SHOW) {
-			holderBgSprite.registerEntityModifier(new MoveModifier(0.3f, holderBgSprite.getX(), -holderBgSprite
-					.getWidth(), holderBgSprite.getY(), camera_height, new IEntityModifierListener() {
-
-				@Override
-				public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-					stage = STAGE.ANIMATE;
-				}
-
-				@Override
-				public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-					stage = STAGE.HIDE;
-					pItem.setVisible(false);
-				}
-			}));
-			derectionMenuSprite.registerEntityModifier(new RotationModifier(0.5f, 180, 0));
-			if (menuListenner != null) {
-				menuListenner.onHide();
-			}
-		}
-	}
-
-	@Override
-	public void onDestroy() {
-		for (BitmapTextureAtlas atla : atlas) {
-			atla.unload();
-		}
-		atlas.clear();
-	}
-
-	private float padding = 60;
-
-	@Override
-	public void invalidate() {
-		padding = 60;
-		float degreeOffset = 90 / (mMenuItems.size());
-		float R = holderBgSprite.getWidth() - padding;
-
-		for (int i = 0; i < mMenuItems.size(); i++) {
-			MenuItem menuItem = (MenuItem) mMenuItems.get(i);
-			float x = (float) (R * Math.cos(Math.toRadians(degreeOffset * (i) + degreeOffset / 2)));
-			float y = (float) (R * Math.sin(Math.toRadians(degreeOffset * (i) + degreeOffset / 2)));
-			menuItem.setPosition(x - menuItem.getWidth() / 2, holderBgSprite.getHeight() - y - menuItem.getHeight() / 2);
-			holderBgSprite.attachChild(menuItem);
-			unregisterTouchArea(menuItem);
-			registerTouchArea(menuItem);
-		}
 
 	}
 

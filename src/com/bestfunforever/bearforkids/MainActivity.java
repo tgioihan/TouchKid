@@ -14,9 +14,6 @@ import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.runnable.RunnableHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
-import org.andengine.engine.options.EngineOptions;
-import org.andengine.engine.options.ScreenOrientation;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.scene.Scene;
@@ -44,14 +41,19 @@ import android.app.AlertDialog.Builder;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
-import com.bestfunforever.bearforkids.Entity.CheckBox.ICheckedChange;
-import com.bestfunforever.bearforkids.Entity.ProgessBarColor;
+import com.bestfunforever.andengine.uikit.activity.PortraitAdmobGameActivity;
+import com.bestfunforever.andengine.uikit.dialog.Dialog;
+import com.bestfunforever.andengine.uikit.dialog.IDialog;
+import com.bestfunforever.andengine.uikit.entity.CheckBox.ICheckedChange;
+import com.bestfunforever.andengine.uikit.entity.ProgessBarColor;
+import com.bestfunforever.andengine.uikit.menu.BaseMenu.IMenuListenner;
+import com.bestfunforever.andengine.uikit.menu.BaseMenu.IOnMenuItemClickListener;
+import com.bestfunforever.andengine.uikit.menu.IMenuItem;
 import com.bestfunforever.bearforkids.Pool.GameObjectGenerate;
 import com.bestfunforever.bearforkids.Pool.SpriteWithBody;
 import com.bestfunforever.bearforkids.Pool.SpriteWithBody.OnTouchBegin;
@@ -59,17 +61,12 @@ import com.bestfunforever.bearforkids.Pool.SpriteWithBody.State;
 import com.bestfunforever.bearforkids.database.DatabaseHelper;
 import com.bestfunforever.bearforkids.game.Game;
 import com.bestfunforever.dialog.BaseDialog;
-import com.bestfunforever.dialog.Dialog;
-import com.bestfunforever.dialog.IDialog;
-import com.bestfunforever.menu.BaseMenu.IMenuListenner;
-import com.bestfunforever.menu.BaseMenu.IOnMenuItemClickListener;
-import com.bestfunforever.menu.CircleMenu;
-import com.bestfunforever.menu.IMenuItem;
+import com.bestfunforever.menu.BearForKidsCircleMenu;
 
-public class MainActivity extends AdmobGameActivity implements IUpdateHandler, IOnMenuItemClickListener,
+public class MainActivity extends PortraitAdmobGameActivity implements IUpdateHandler, IOnMenuItemClickListener,
 		IMenuListenner {
-	
-	private String[] bgs = new String[]{"bg1.png","bg2.jpg","bg3.jpg","bg4.jpg","bg5.jpg","bg6.jpg"};
+
+	private String[] bgs = new String[] { "bg1.png", "bg2.jpg", "bg3.jpg", "bg4.jpg", "bg5.jpg", "bg6.jpg" };
 
 	// ===========================================================
 	// Constants
@@ -132,24 +129,6 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 	}
 
 	@Override
-	public EngineOptions onCreateEngineOptions() {
-		ratio = RatioUtils.calculatorRatioScreen(this, true);
-		Log.d("", "ratio " + ratio);
-		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		int adsHeight = getAddMobHeight();
-		Log.d("", "ads height "+ adsHeight);
-		CAMERA_WIDTH = metrics.widthPixels;
-		CAMERA_HEIGHT = metrics.heightPixels-adsHeight;
-		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED,
-				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
-		engineOptions.getAudioOptions().getMusicOptions().setNeedsMusic(true);
-		engineOptions.getAudioOptions().getSoundOptions().setNeedsSound(true);
-		return engineOptions;
-
-	}
-
-	@Override
 	protected void onCreateResources() {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		String bg = bgs[mRandom.nextInt(6)];
@@ -189,12 +168,12 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 				(int) (256 * ratio), Typeface.create(Typeface.DEFAULT, Typeface.BOLD), (int) (32 * ratio));
 		this.mFont.load();
 	}
-	
+
 	public static void clearITextureRegion(final ITextureRegion mITextureRegion) {
-		  mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
-		  mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
-		 }
-	
+		mITextureRegion.setTextureWidth(mITextureRegion.getWidth() - 1);
+		mITextureRegion.setTextureHeight(mITextureRegion.getHeight() - 1);
+	}
+
 	private void playFinish() {
 		if (finishSound != null && SoundManger.isSoundEnable(preferences)) {
 			finishSound.play();
@@ -203,7 +182,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 			finishSound.play();
 		}
 	}
-	
+
 	private void loadFinishSound() {
 		SoundFactory.setAssetBasePath("sound/");
 		try {
@@ -237,7 +216,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 	private Text scoreText;
 	private Text levelText;
 	private ProgessBarColor progress;
-	private CircleMenu circleMenu;
+	private BearForKidsCircleMenu circleMenu;
 
 	@Override
 	public void onPause() {
@@ -289,7 +268,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 		this.spriteGroup = new SpriteGroup(this.mBitmapTextureAtlas, 1000, this.getVertexBufferObjectManager());
 		mScene.attachChild(spriteGroup);
 
-		circleMenu = new CircleMenu(this, mCamera, ratio);
+		circleMenu = new BearForKidsCircleMenu(this, mCamera, ratio);
 		circleMenu.setOnMenuItemClickListener(this);
 		circleMenu.setMenuListenner(this);
 		circleMenu.attackScene(mScene);
@@ -353,13 +332,13 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 		sprite.setVelocity(mGame.getVelocity());
 		sprite.setVisible(true);
 		sprite.setDeathListenner(new IEntityModifierListener() {
-			
+
 			@Override
 			public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 				// TODO Auto-generated method stub
@@ -371,10 +350,10 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 			@Override
 			public void onTouchBegin() {
 				if (!pause) {
-					if(sprite.getState() == State.ACTIVE){
+					if (sprite.getState() == State.ACTIVE) {
 						playCLick();
 						sprite.setState(State.DEATH);
-//						removeGameObject(sprite);
+						// removeGameObject(sprite);
 						boolean passLv = mGame.incressScore(1);
 						scoreText.setText(getString(R.string.score) + mGame.getScore() + "");
 						if (passLv) {
@@ -435,7 +414,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 	@Override
 	public void onUpdate(float pSecondsElapsed) {
 		for (SpriteWithBody spriteWithBody : mGameObject) {
-			if (spriteWithBody.getState()==State.ACTIVE&&spriteWithBody.getY() > CAMERA_HEIGHT) {
+			if (spriteWithBody.getState() == State.ACTIVE && spriteWithBody.getY() > CAMERA_HEIGHT) {
 				removeGameObject(spriteWithBody);
 				boolean isDeath = mGame.incressObjectDeathCount(1);
 				progress.setPercent(100 - mGame.getPercentObjectDeath());
@@ -516,7 +495,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 
 	protected void createEndGameDialog() {
 		ScoreDialog dialog = new ScoreDialog(this, mCamera, ratio, mGame.getScore(), mGame.getLevel());
-		dialog.setLeftButton("OK", new com.bestfunforever.dialog.IDialog.IClick() {
+		dialog.setLeftButton("OK", new com.bestfunforever.andengine.uikit.dialog.IDialog.IClick() {
 
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {
@@ -540,7 +519,7 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 				});
 			}
 		});
-		dialog.setRightButton(null,mShareFbTextureRegion, new com.bestfunforever.dialog.IDialog.IClick() {
+		dialog.setRightButton(null, mShareFbTextureRegion, new com.bestfunforever.andengine.uikit.dialog.IDialog.IClick() {
 
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {
@@ -553,7 +532,10 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 
 	protected void share(int score, int level) {
 		// TODO Auto-generated method stub
-		shareFacebook(getString(R.string.app_name),getString(R.string.sharedesciption),getString(R.string.sharemsg)+" "+getString(R.string.level)+" "+level+" "+getString(R.string.score)+" "+score, "https://play.google.com/store/apps/details?id="+getPackageName(), "https://raw.githubusercontent.com/tgioihan/TouchKid/master/bearforkidicon.png");
+		shareFacebook(getString(R.string.app_name), getString(R.string.sharedesciption), getString(R.string.sharemsg)
+				+ " " + getString(R.string.level) + " " + level + " " + getString(R.string.score) + " " + score,
+				"https://play.google.com/store/apps/details?id=" + getPackageName(),
+				"https://raw.githubusercontent.com/tgioihan/TouchKid/master/bearforkidicon.png");
 	}
 
 	@Override
@@ -632,15 +614,15 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 	public boolean onMenuItemClicked(HUD pMenuScene, IMenuItem pMenuItem) {
 		int id = pMenuItem.getID();
 		switch (id) {
-		case CircleMenu.MENU_SETTING:
+		case BearForKidsCircleMenu.MENU_SETTING:
 			playCLick();
 			createSettingDialog();
 			break;
-		case CircleMenu.MENU_EXIT:
+		case BearForKidsCircleMenu.MENU_EXIT:
 			playCLick();
 			finish();
 			break;
-		case CircleMenu.MENU_HiGHSCORE:
+		case BearForKidsCircleMenu.MENU_HiGHSCORE:
 			playCLick();
 			createHighScoreDialog();
 			break;
@@ -657,13 +639,13 @@ public class MainActivity extends AdmobGameActivity implements IUpdateHandler, I
 		pause = true;
 		BaseDialog mDialog = new HighScoreDialog(this, mCamera, ratio, clickSound);
 		mDialog.setDialogListenner(new IDialog() {
-			
+
 			@Override
 			public void onOpen() {
 				mEngine.unregisterUpdateHandler(MainActivity.this);
 				pause = true;
 			}
-			
+
 			@Override
 			public void onClose() {
 				mEngine.registerUpdateHandler(MainActivity.this);

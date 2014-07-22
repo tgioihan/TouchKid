@@ -13,12 +13,11 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 
 import android.content.SharedPreferences;
-import android.preference.Preference;
 
+import com.bestfunforever.andengine.uikit.dialog.Dialog;
+import com.bestfunforever.andengine.uikit.entity.CheckBox;
+import com.bestfunforever.andengine.uikit.entity.CheckBox.ICheckedChange;
 import com.bestfunforever.dialog.BaseDialog;
-import com.bestfunforever.dialog.Dialog;
-import com.bestfunforever.bearforkids.Entity.CheckBox;
-import com.bestfunforever.bearforkids.Entity.CheckBox.ICheckedChange;
 
 public class SettingDialog extends BaseDialog {
 
@@ -39,7 +38,7 @@ public class SettingDialog extends BaseDialog {
 		mclickSound = clickSound;
 		setTitle(context.getString(R.string.settings));
 		setLeftButton(context.getString(R.string.oK),
-				new com.bestfunforever.dialog.IDialog.IClick() {
+				new com.bestfunforever.andengine.uikit.dialog.IDialog.IClick() {
 
 					@Override
 					public void onClick(Dialog dialog, IEntity view) {
@@ -53,7 +52,6 @@ public class SettingDialog extends BaseDialog {
 
 	@Override
 	public void onLoadResource() {
-		// TODO Auto-generated method stub
 		super.onLoadResource();
 		this.mSoundBitmapTextureAtlas = new BitmapTextureAtlas(
 				context.getTextureManager(), 527, 388, TextureOptions.BILINEAR);
@@ -72,7 +70,6 @@ public class SettingDialog extends BaseDialog {
 
 	@Override
 	public void onDesTroy() {
-		// TODO Auto-generated method stub
 		super.onDesTroy();
 		mSoundBitmapTextureAtlas.unload();
 		mMusicBitmapTextureAtlas.unload();

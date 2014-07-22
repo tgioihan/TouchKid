@@ -11,11 +11,11 @@ import org.andengine.util.color.Color;
 
 import android.util.Log;
 
+import com.bestfunforever.andengine.uikit.dialog.Dialog;
 import com.bestfunforever.andengine.uikit.listview.ListView;
-import com.bestfunforever.dialog.BaseDialog;
-import com.bestfunforever.dialog.Dialog;
 import com.bestfunforever.bearforkids.adapter.ScoreAdapter;
 import com.bestfunforever.bearforkids.database.DatabaseHelper;
+import com.bestfunforever.dialog.BaseDialog;
 
 public class HighScoreDialog extends BaseDialog {
 	private float mHeight;
@@ -27,7 +27,7 @@ public class HighScoreDialog extends BaseDialog {
 		mHeight = 300 * ratio;
 		this.clickSound = clickSound;
 		setTitle(context.getString(R.string.highscore));
-		setLeftButton(context.getString(R.string.oK), new com.bestfunforever.dialog.IDialog.IClick() {
+		setLeftButton(context.getString(R.string.oK), new com.bestfunforever.andengine.uikit.dialog.IDialog.IClick() {
 
 			@Override
 			public void onClick(Dialog dialog, IEntity view) {

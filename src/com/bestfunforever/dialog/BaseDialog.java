@@ -1,7 +1,6 @@
 package com.bestfunforever.dialog;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.shape.IAreaShape;
@@ -16,7 +15,6 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegion;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
@@ -24,8 +22,9 @@ import org.andengine.util.color.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 
+import com.bestfunforever.andengine.uikit.dialog.Dialog;
+import com.bestfunforever.andengine.uikit.entity.BubbleSprite;
 import com.bestfunforever.andengine.uikit.entity.IClick;
-import com.bestfunforever.bearforkids.Entity.BubbleSprite;
 
 public class BaseDialog extends Dialog {
 
@@ -172,16 +171,16 @@ public class BaseDialog extends Dialog {
 	}
 	
 
-	public void setLeftButton(String label, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+	public void setLeftButton(String label, final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		setLeftButton(label, mBtnTextureRegion, iclick);
 	}
 
-	public void setRightButton(String label, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+	public void setRightButton(String label, final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		setRightButton(label, mBtnTextureRegion, iclick);
 	}
 
 	public void setRightButton(String label, ITextureRegion textureRegion,
-			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+			final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		mRightButton = addButton(false, label, textureRegion, new IClick() {
 
 			@Override
@@ -195,7 +194,7 @@ public class BaseDialog extends Dialog {
 	}
 
 	public void setLeftButton(String label, ITextureRegion textureRegion,
-			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+			final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		mLeftButton = addButton(false, label,162*ratio,56*ratio, textureRegion, new IClick() {
 
 			@Override
@@ -209,16 +208,16 @@ public class BaseDialog extends Dialog {
 	}
 	
 	///////
-	public void setLeftButton(String label,float width,float height, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+	public void setLeftButton(String label,float width,float height, final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		setLeftButton(label,width,height, mBtnTextureRegion, iclick);
 	}
 
-	public void setRightButton(String label,float width,float height, final com.bestfunforever.dialog.IDialog.IClick iclick) {
+	public void setRightButton(String label,float width,float height, final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		setRightButton(label,width,height, mBtnTextureRegion, iclick);
 	}
 
 	public void setRightButton(String label,float width,float height,  ITextureRegion textureRegion,
-			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+			final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		mRightButton = addButton(false, label,width,height, textureRegion, new IClick() {
 
 			@Override
@@ -232,7 +231,7 @@ public class BaseDialog extends Dialog {
 	}
 
 	public void setLeftButton(String label,float width,float height, ITextureRegion textureRegion,
-			final com.bestfunforever.dialog.IDialog.IClick iclick) {
+			final com.bestfunforever.andengine.uikit.dialog.IDialog.IClick iclick) {
 		mLeftButton = addButton(false, label, width, height, textureRegion, new IClick() {
 
 			@Override
