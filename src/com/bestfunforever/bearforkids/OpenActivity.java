@@ -8,9 +8,6 @@ import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
-import org.andengine.engine.options.EngineOptions;
-import org.andengine.engine.options.ScreenOrientation;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveXModifier;
@@ -27,7 +24,6 @@ import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.TextureRegion;
-import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
 
@@ -35,16 +31,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.bestfunforever.andengine.uikit.activity.PortraitAdmobGameActivity;
+import com.bestfunforever.andengine.uikit.dialog.Dialog;
+import com.bestfunforever.andengine.uikit.entity.BubbleSprite;
+import com.bestfunforever.andengine.uikit.entity.CheckBox.ICheckedChange;
 import com.bestfunforever.andengine.uikit.entity.IClick;
 import com.bestfunforever.dialog.BaseDialog;
-import com.bestfunforever.dialog.Dialog;
-import com.bestfunforever.bearforkids.Entity.BubbleSprite;
-import com.bestfunforever.bearforkids.Entity.CheckBox.ICheckedChange;
 
-public class OpenActivity extends AdmobGameActivity {
+public class OpenActivity extends PortraitAdmobGameActivity {
 
 	private float ratio;
 	private int CAMERA_WIDTH;
@@ -70,24 +66,6 @@ public class OpenActivity extends AdmobGameActivity {
 		super.onCreate(pSavedInstanceState);
 		preferences = getSharedPreferences("BearforKid", 0);
 		Log.d("", "keyhash "+ getKeyHash(getPackageName()));
-	}
-
-	@Override
-	public EngineOptions onCreateEngineOptions() {
-		ratio = RatioUtils.calculatorRatioScreen(this, true);
-		Log.d("", "ratio " + ratio);
-		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		int adsHeight = getAddMobHeight();
-		Log.d("", "ads height "+ adsHeight);
-		CAMERA_WIDTH = metrics.widthPixels;
-		CAMERA_HEIGHT = metrics.heightPixels-adsHeight;
-		mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		EngineOptions engineOptions = new EngineOptions(true,
-				ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(
-						CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
-		engineOptions.getAudioOptions().getMusicOptions().setNeedsMusic(true);
-		engineOptions.getAudioOptions().getSoundOptions().setNeedsSound(true);
-		return engineOptions;
 	}
 
 	@Override
@@ -306,7 +284,7 @@ public class OpenActivity extends AdmobGameActivity {
 		BaseDialog mDialog = new BaseDialog(this, mCamera, ratio);
 		mDialog.setTitle(string);
 		mDialog.setLeftButton("OK",
-				new com.bestfunforever.dialog.IDialog.IClick() {
+				new com.bestfunforever.andengine.uikit.dialog.IDialog.IClick() {
 
 					@Override
 					public void onClick(Dialog dialog, IEntity view) {
