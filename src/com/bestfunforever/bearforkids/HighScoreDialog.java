@@ -1,6 +1,7 @@
 package com.bestfunforever.bearforkids;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.andengine.audio.sound.Sound;
 import org.andengine.engine.camera.Camera;
@@ -45,6 +46,11 @@ public class HighScoreDialog extends BaseDialog {
 		// float height = height*ratio;
 		mHeight = 300 * ratio;
 		databaseHelper = new DatabaseHelper(context);
+//		Random random = new Random();
+//		for (int i = 0; i < 30; i++) {
+//			HighScore highScore = new HighScore("dakjfhdksafhkdsjhfdsa", random.nextInt(1000), random.nextInt(30), 321321321);
+//			databaseHelper.insertHighScore(highScore);
+//		}
 		ListView mListView = new ListView(context, 0, 0, mContentRect.getWidth(), mHeight,
 				context.getVertexBufferObjectManager());
 		ArrayList<HighScore> highScores = databaseHelper.getHighScore();
