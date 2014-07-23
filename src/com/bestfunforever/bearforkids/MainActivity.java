@@ -269,6 +269,7 @@ public class MainActivity extends PortraitAdmobGameActivity implements IUpdateHa
 		mScene.attachChild(spriteGroup);
 
 		circleMenu = new BearForKidsCircleMenu(this, mCamera, ratio);
+		circleMenu.init();
 		circleMenu.setOnMenuItemClickListener(this);
 		circleMenu.setMenuListenner(this);
 		circleMenu.attackScene(mScene);

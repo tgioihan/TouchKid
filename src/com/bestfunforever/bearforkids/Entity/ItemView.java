@@ -10,7 +10,7 @@ import org.andengine.util.color.Color;
 import com.bestfunforever.bearforkids.HighScore;
 
 public class ItemView extends Rectangle {
-
+	private int maxNameChar = 8;
 	private Font mFont;
 	private Text mNameText;
 	private Text scoreText;
@@ -22,13 +22,13 @@ public class ItemView extends Rectangle {
 		setColor(Color.TRANSPARENT);
 		this.mFont = font;
 
-		mNameText = new Text(0, 0, mFont, "", 8, getVertexBufferObjectManager());
+		mNameText = new Text(0, 0, mFont, "", maxNameChar, getVertexBufferObjectManager());
 		mNameText.setColor(Color.RED);
 
-		scoreText = new Text(200*ratio, 0, mFont, "", 4, getVertexBufferObjectManager());
+		scoreText = new Text(200*ratio, 0, mFont, "", 10, getVertexBufferObjectManager());
 		scoreText.setColor(Color.RED);
 
-		levelText = new Text(300*ratio, 0, mFont, "", 4, getVertexBufferObjectManager());
+		levelText = new Text(300*ratio, 0, mFont, "", 10, getVertexBufferObjectManager());
 		levelText.setColor(Color.RED);
 
 		mNameText.setY(pHeight / 2 - mNameText.getHeight() / 2);
@@ -51,6 +51,9 @@ public class ItemView extends Rectangle {
 			scoreText.setText( "-");
 			levelText.setText("-");
 		}else{
+			if(highScore.getName().length()>maxNameChar){
+				highScore.setName(highScore.getName().substring(0, maxNameChar));
+			}
 			mNameText.setText(highScore.getName());
 			scoreText.setText(highScore.getScore() + "");
 			levelText.setText(highScore.getLevel() + "");
