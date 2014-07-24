@@ -43,8 +43,8 @@ public class Game {
 		objectDeathCount = 0;
 		scoreToPassLv += 15 * level;
 		objectDeathTotal += 4;
-		if (generateTime - 0.1f * level > 0.2f) {
-			generateTime -= 0.1f * level;
+		if (generateTime - 0.03f * level > 0.5f) {
+			generateTime -= 0.03f * level;
 		}
 
 	}

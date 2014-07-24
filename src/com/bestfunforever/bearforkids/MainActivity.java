@@ -69,12 +69,6 @@ public class MainActivity extends PortraitAdmobGameActivity implements IUpdateHa
 	private String[] bgs = new String[] { "bg1.png", "bg2.jpg", "bg3.jpg", "bg4.jpg", "bg5.jpg", "bg6.jpg" };
 
 	// ===========================================================
-	// Constants
-	// ===========================================================
-	private int CAMERA_WIDTH = 320;
-	public int CAMERA_HEIGHT = 480;
-
-	// ===========================================================
 	// Fields
 	// ===========================================================
 	private Scene mScene;
@@ -95,8 +89,6 @@ public class MainActivity extends PortraitAdmobGameActivity implements IUpdateHa
 	private BitmapTextureAtlas mShareFbBitmapTextureAtlas;
 	private TextureRegion mBgTextureRegion;
 
-	private float ratio;
-	private Camera mCamera;
 	private Font mFont;
 	private Sound clickSound;
 	private Music music;
